@@ -8,12 +8,17 @@ function Map = FuncInitialiseGridMap3D(Map, Pose, PointCloudData)
     nPointClouds = length(PointCloudData); % Number of point clouds
     for i = 1:nPointClouds
         posei = Pose{i};
+        % Convert the transformation matrix to Euler angles and translation vector
+        [euler_angles, translation] = se3_to_euler_angles_translation(posei);
+        
+        % Convert the Euler angles and translation vector back to an SE(3) matrix
+        T_reconstructed = euler_angles_translation_to_se3(euler_angles, translation);
+
         pointCloud_i = PointCloudData{i};
         xyi = pointCloud_i.Location(:,1:2)'; % Extract x and y values
         zi = pointCloud_i.Location(:,3)'; % Extract z values as the new Oddi
         P = [xyi;zi;ones(1,size(zi,2))];
-        Pwi = inv(posei)*P;
-        length_cow = size(Pwi,2);
+        Pwi = inv(T_reconstructed)*P;
         for j = 1:size(Pwi,2)
             XY3 = (Pwi(1:2,j)-Origin)*Scale;
             u = XY3(1,:);
