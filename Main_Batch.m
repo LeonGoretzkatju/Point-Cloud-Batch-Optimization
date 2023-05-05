@@ -35,7 +35,7 @@ MODE_POSE = 'TRUE'; %If initial poses need to be calculated from odom
 Size_i = 600;
 Size_j = 978;
 Scale = 0.2;
-Origin = [-1320;-4038];
+Origin = [-1323;-4038];
 
 % Create an empty cell array named Poses
 Trans = {};
@@ -67,7 +67,7 @@ end
 % pcshow(global_point_clouds);
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D(Map,Pose,Downsample_pointclouds);
-% % Convert the grid to 3D points
+% Convert the grid to 3D points
 % [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
 % x = (i - 1) / Scale + Origin(1); % Convert i indices to x coordinates
 % y = (j - 1) / Scale + Origin(2); % Convert j indices to y coordinates
@@ -97,7 +97,7 @@ Map = FuncSmoothN2(Map,10,HH2);
 if Lambda_O==0
     Odom = zeros(size(Pose,1)-1,3);
 end
-[cell_ErrorS,JacoMap2Point,dEdPSet,JP] = FuncDiffJacobianStepTest(Map,Pose,Downsample_pointclouds,Odom,MODE_DERIVATIVES,...
+[cell_ErrorS,JP,JD] = FuncDiffJacobianStepTest(Map,Pose,Downsample_pointclouds,Odom,MODE_DERIVATIVES,...
     MODE_MAP);
 % [Pose,Reason,Info,index] = FuncLeastSquaresBatch(Map,Pose,pointclouds,...
 %     Odom,MODE_DERIVATIVES,FILE_DIRECTORY,...

@@ -7,3 +7,5 @@ JPID1 = 1:100;
 JPID2 = 101:200;
 JPVal = 1:100;
 JP = sparse(JPID1,JPID2,JPVal);
+c = 0.3;
+fix(c)

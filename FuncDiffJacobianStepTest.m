@@ -1,4 +1,4 @@
-function [cell_ErrorS,dMdXYSet,dEdPSet,JP] = FuncDiffJacobianStepTest(Map,Pose,Scan,Odom,MODE_DERIVATIVES,MODE_MAP)
+function [cell_ErrorS,JP,JD] = FuncDiffJacobianStepTest(Map,Pose,Scan,Odom,MODE_DERIVATIVES,MODE_MAP)
 
 Size_i = Map.Size_i;
 Size_j = Map.Size_j;
@@ -7,7 +7,6 @@ Origin = Map.Origin;
 
 nD = length(Scan); % the timestamp
 nPts = 0;
-Cnti = 1;
 
 cell_ErrorS = cell(1,nD);
 
@@ -17,19 +16,16 @@ cell_JPVal = cell(1,nD);
 cell_JDID1 = cell(1,nD);
 cell_JDID2 = cell(1,nD);
 cell_JDVal = cell(1,nD);
-dMdXYSet = {};
-dEdPSet = {};
 for k = 1:nD
     posek = Pose{k};
-    [euler_angles, translations] = se3_to_euler_angles_translation(posek);
+    [euler_angles, ~] = se3_to_euler_angles_translation(posek);
     Scan_k = Scan{k};
     xyk = Scan_k.Location(:,1:2)'; % Extract x and y values
-    XY1 = xyk;
     zk = Scan_k.Location(:,3)'; % Extract z values as the new Oddi
     XY1_Span = [xyk;zk];
     P = [xyk;zk;ones(1,size(zk,2))];
     Pwk = inv(posek)*P;
-    XY3 = (Pwk(1:2,:)-Origin)*Scale;    
+    XY3 = (Pwk(1:2,:)-Origin)*Scale+1;    
     if strcmp(MODE_MAP,'CONTINUOUS')==1
         Md = Map.DgridG(XY3(2,:),XY3(1,:)); % interpolant of map grid 
     else
@@ -50,7 +46,6 @@ for k = 1:nD
             dMdXY3 = [Map.DgridGu(round_XY3)';Map.DgridGv(round_XY3)'];
         end
     end
-    dMdXYSet{end+1} = dMdXY3;
     [dRyaw,dRpitch,dRroll] = DiffRotationMatrix(euler_angles);
     dXY3dRyaw = dRyaw'*XY1_Span*Scale;
     dXY3dRpitch = dRpitch'*XY1_Span*Scale;
@@ -68,8 +63,7 @@ for k = 1:nD
     dMdT = Scale*[dMdXY3(1,:);dMdXY3(2,:);zeros(1,size(dMdXY3,2))];
     dMdP = [dMdT;dMdR];
     dZdP = [dZdT;dZdR];
-    dEdP = [dZdT-dMdT;dZdR-dMdR];
-    dEdPSet{end+1} = dEdP;
+    dEdP = dZdP-dMdP;
 
     nPtsk = length(zk);
     IDk = nPts+1:nPts+nPtsk; %ID numer from 1 to nPtsk
@@ -82,10 +76,41 @@ for k = 1:nD
     cell_JPID2{k} = reshape(dEdPID2',[],1);
     cell_JPVal{k} = reshape(dEdP',[],1);
 
+%     u = XY3(1,:); % x of grid map
+%     v = XY3(2,:); % y of grid map
+
+    u = max(XY3(1,:), 1); % x of grid map
+    v = max(XY3(2,:), 1); % y of grid map
+
+    u1 = fix(u); % Rounding to zero direction
+    v1 = fix(v);
+    
+    dEdM = [(v1+1-v).*(u1+1-u);(v-v1).*(u1+1-u);(v1+1-v).*(u-u1);(v-v1).*(u-u1)];
+    dEdMID2 = [Size_j*(v1-1)+u1;Size_j*v1+u1;Size_j*(v1-1)+u1+1;Size_j*v1+u1+1];
+    dEdMID1 = repmat(IDk,4,1);
+
+    % Make sure dEdMID2 values are within the bounds of the sparse matrix
+    max_u_index = Size_i * Size_j;
+    dEdMID2 = min(dEdMID2, max_u_index);
+
+    cell_JDID1{k} = reshape(dEdMID1',[],1);
+    cell_JDID2{k} = reshape(dEdMID2',[],1);
+    cell_JDVal{k} = reshape(dEdM',[],1);
 end
+
 JPID1 = vertcat(cell_JPID1{:});
 JPID2 = vertcat(cell_JPID2{:});
 JPVal = vertcat(cell_JPVal{:});
+
+JDID1 = vertcat(cell_JDID1{:});
+JDID2 = vertcat(cell_JDID2{:});
+JDVal = vertcat(cell_JDVal{:});
+
+JDVal = double(JDVal);
+JDID1 = double(JDID1);
+JDID2 = double(JDID2);
+JD = sparse(JDID1,JDID2,JDVal,nPts,Size_i*Size_j);
+
 JPVal = double(JPVal);
 JP = sparse(JPID1,JPID2,JPVal);
 end
