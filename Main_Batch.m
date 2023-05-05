@@ -67,37 +67,37 @@ end
 % pcshow(global_point_clouds);
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D(Map,Pose,Downsample_pointclouds);
-% Convert the grid to 3D points
-[i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
-x = (i - 1) / Scale + Origin(1); % Convert i indices to x coordinates
-y = (j - 1) / Scale + Origin(2); % Convert j indices to y coordinates
-z = Map.Grid; % Use Grid values as z coordinates
-
-points = [x(:), y(:), z(:)];
-
-% Remove points with zero occupancy values to improve visualization
-points = points(z(:) > 0, :);
-
-% Create a pointCloud object
-global_points = pointCloud(points);
-
-% Visualize the point cloud
-figure; % Create a new figure
-pcshow(global_points); % Display the 3D point cloud
-xlabel('X'); % Label the x-axis
-ylabel('Y'); % Label the y-axis
-zlabel('Z'); % Label the z-axis
-title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
+% % Convert the grid to 3D points
+% [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
+% x = (i - 1) / Scale + Origin(1); % Convert i indices to x coordinates
+% y = (j - 1) / Scale + Origin(2); % Convert j indices to y coordinates
+% z = Map.Grid; % Use Grid values as z coordinates
+% 
+% points = [x(:), y(:), z(:)];
+% 
+% % Remove points with zero occupancy values to improve visualization
+% points = points(z(:) > 0, :);
+% 
+% % Create a pointCloud object
+% global_points = pointCloud(points);
+% 
+% % Visualize the point cloud
+% figure; % Create a new figure
+% pcshow(global_points); % Display the 3D point cloud
+% xlabel('X'); % Label the x-axis
+% ylabel('Y'); % Label the y-axis
+% zlabel('Z'); % Label the z-axis
+% title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
 
 HH2 = FuncMapConst(Map);
 Map = FuncSmoothN2(Map,10,HH2);
-Map = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+[Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
 
 %% Least Squares
 if Lambda_O==0
     Odom = zeros(size(Pose,1)-1,3);
 end
-cell_ErrorS = FuncDiffJacobianStepTest(Map,Pose,Downsample_pointclouds,Odom,MODE_DERIVATIVES,...
+[cell_ErrorS,JacoMap2Point] = FuncDiffJacobianStepTest(Map,Pose,Downsample_pointclouds,Odom,MODE_DERIVATIVES,...
     MODE_MAP);
 % [Pose,Reason,Info,index] = FuncLeastSquaresBatch(Map,Pose,pointclouds,...
 %     Odom,MODE_DERIVATIVES,FILE_DIRECTORY,...

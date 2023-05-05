@@ -27,29 +27,21 @@ for k = 1:nD
 %     Tk = Pose(k,1:2)'; % x,y of the robot
 %     XY1 = Scan{k}.xy'; % x,y of the scan
 %     Oddk = Scan{k}.Odd'; % Odds value of the scan
-
     posek = Pose{k};
+    [euler_angles, translation] = se3_to_euler_angles_translation(posek);
     Scan_k = Scan{k};
     xyk = Scan_k.Location(:,1:2)'; % Extract x and y values
     zk = Scan_k.Location(:,3)'; % Extract z values as the new Oddi
     P = [xyk;zk;ones(1,size(zk,2))];
     Pwk = inv(posek)*P;
     XY3 = (Pwk(1:2,:)-Origin)*Scale;
-
 %     XY2 = Rk'*XY1+Tk; % convert robot cordinate to the world cordinate
-%     XY3 = (XY2-Origin)/Scale+1; % convert the world cordinate to map, related to the formula(9) in paper    
-    
+%     XY3 = (XY2-Origin)/Scale+1; % convert the world cordinate to map, related to the formula(9) in paper
    if strcmp(MODE_MAP,'CONTINUOUS')==1
-        Md = Map.DgridG(XY3(2,:),XY3(1,:)); % interpolant of map grid 
-%         MN = Map.NgridG(XY3(2,:),XY3(1,:)); % interpolant of hit number 
+        Md = Map.DgridG(XY3(2,:),XY3(1,:)); % interpolant of map grid  
    else
-        Md = Map.DgridG(round(XY3(2,:)),round(XY3(1,:))); 
-%         round_XY3 = [round(XY3(2,:));round(XY3(1,:))]';
-%         round_XY3 = (round_XY3(:,2)-1)*Size_i+round_XY3(:,1);
-%         MN = Map.N(round_XY3)'; 
-       
+        Md = Map.DgridG(round(XY3(2,:)),round(XY3(1,:)));       
    end
-%     Ek = Md./MN-Oddk; %  diff between each point
     Ek = Md - zk;
     cell_ErrorS{k} = Ek';
     
@@ -57,7 +49,6 @@ for k = 1:nD
     if strcmp (MODE_DERIVATIVES, 'PARSING')==1
         Map = FuncGradient_Matrix_M(XY3(2,:),XY3(1,:),Map); % calculate gradient of M and N, given(x,y and Map)
         dMdXY3 = [Map.DgridGu; Map.DgridGv]; % derivative of Grid Map with P_m 
-        
     else
         if strcmp(MODE_MAP,'CONTINUOUS')==1
             dMdXY3 = [Map.DgridGu(XY3(2,:),XY3(1,:));Map.DgridGv(XY3(2,:),XY3(1,:))]; % derivative of Grid Map with x,y/N

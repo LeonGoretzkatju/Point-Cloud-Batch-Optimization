@@ -1,4 +1,4 @@
-function Map = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP)
+function [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP)
 
     
 DTgrid = griddedInterpolant(Map.Grid); % Interpolant
