@@ -64,7 +64,7 @@ for k = 1:nD
     dMdP = [dMdT;dMdR];
     
     nPtsk = length(Oddk);
-    IDk = nPts+1:nPts+nPtsk;
+    IDk = nPts+1:nPts+nPtsk; %ID numer from 1 to nPtsk
     nPts = nPts+nPtsk;
     
     dEdPID1 = repmat(IDk,3,1);

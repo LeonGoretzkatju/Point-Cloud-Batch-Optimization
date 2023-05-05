@@ -1,4 +1,4 @@
-function [cell_ErrorS,dMdXYSet] = FuncDiffJacobianStepTest(Map,Pose,Scan,Odom,MODE_DERIVATIVES,MODE_MAP)
+function [cell_ErrorS,dMdXYSet,dMdPSet] = FuncDiffJacobianStepTest(Map,Pose,Scan,Odom,MODE_DERIVATIVES,MODE_MAP)
 
 Size_i = Map.Size_i;
 Size_j = Map.Size_j;
@@ -18,11 +18,15 @@ cell_JDID1 = cell(1,nD);
 cell_JDID2 = cell(1,nD);
 cell_JDVal = cell(1,nD);
 dMdXYSet = {};
+dMdPSet = {};
 for k = 1:nD
     posek = Pose{k};
+    [euler_angles, translations] = se3_to_euler_angles_translation(posek);
     Scan_k = Scan{k};
     xyk = Scan_k.Location(:,1:2)'; % Extract x and y values
+    XY1 = xyk;
     zk = Scan_k.Location(:,3)'; % Extract z values as the new Oddi
+    XY1_Span = [xyk;zk];
     P = [xyk;zk;ones(1,size(zk,2))];
     Pwk = inv(posek)*P;
     XY3 = (Pwk(1:2,:)-Origin)*Scale;    
@@ -47,5 +51,17 @@ for k = 1:nD
         end
     end
     dMdXYSet{end+1} = dMdXY3;
-
+    [dRyaw,dRpitch,dRroll] = DiffRotationMatrix(euler_angles);
+    dXY3dRyaw = dRyaw'*XY1_Span*Scale;
+    dXY3dRpitch = dRpitch'*XY1_Span*Scale;
+    dXY3dRroll = dRroll'*XY1_Span*Scale;
+    dMdRyaw = sum(dMdXY3.*dXY3dRyaw(1:2,:));
+    dMdRpitch = sum(dMdXY3.*dXY3dRpitch(1:2,:));
+    dMdRroll = sum(dMdXY3.*dXY3dRroll(1:2,:));
+    dMdR = [dMdRyaw;dMdRpitch;dMdRroll];
+    dMdT = Scale*[dMdXY3(1,:);dMdXY3(2,:);zeros(1,size(dMdXY3,2))];
+    dMdP = [dMdT;dMdR];
+    dMdPSet{end+1} = dMdP;
+    nPtsk = length(zk);
+    
 end
