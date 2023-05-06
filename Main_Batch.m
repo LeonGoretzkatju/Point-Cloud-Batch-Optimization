@@ -32,9 +32,9 @@ MODE_POSE = 'TRUE'; %If initial poses need to be calculated from odom
 
 %% Create Grid Map
 % CarPark Dataset
-Size_i = 600;
-Size_j = 978;
-Scale = 0.2;
+Size_i = 61;
+Size_j = 99;
+Scale = 0.02;
 Origin = [-1323;-4038];
 
 % Create an empty cell array named Poses
@@ -56,7 +56,7 @@ for i = 1:num_of_planes
     ptCloud = pcread("plane_seq2\" + "plane" + i + ".pcd");
     pointclouds{end+1} = ptCloud;
 end
-gridStep = 10.0;
+gridStep = 20.0;
 for i = 1:numel(pointclouds)
     ptCloud_down_10 = pcdownsample(pointclouds{i},'gridAverage',gridStep);
     Downsample_points = FuncDownsamplePoints(ptCloud_down_10, Rate);
@@ -68,26 +68,26 @@ end
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D(Map,Pose,Downsample_pointclouds);
 % Convert the grid to 3D points
-% [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
-% x = (i - 1) / Scale + Origin(1); % Convert i indices to x coordinates
-% y = (j - 1) / Scale + Origin(2); % Convert j indices to y coordinates
-% z = Map.Grid; % Use Grid values as z coordinates
-% 
-% points = [x(:), y(:), z(:)];
-% 
-% % Remove points with zero occupancy values to improve visualization
-% points = points(z(:) > 0, :);
-% 
-% % Create a pointCloud object
-% global_points = pointCloud(points);
-% 
-% % Visualize the point cloud
-% figure; % Create a new figure
-% pcshow(global_points); % Display the 3D point cloud
-% xlabel('X'); % Label the x-axis
-% ylabel('Y'); % Label the y-axis
-% zlabel('Z'); % Label the z-axis
-% title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
+[i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
+x = (i - 1) / Scale + Origin(1); % Convert i indices to x coordinates
+y = (j - 1) / Scale + Origin(2); % Convert j indices to y coordinates
+z = Map.Grid; % Use Grid values as z coordinates
+
+points = [x(:), y(:), z(:)];
+
+% Remove points with zero occupancy values to improve visualization
+points = points(z(:) > 0, :);
+
+% Create a pointCloud object
+global_points = pointCloud(points);
+
+% Visualize the point cloud
+figure; % Create a new figure
+pcshow(global_points); % Display the 3D point cloud
+xlabel('X'); % Label the x-axis
+ylabel('Y'); % Label the y-axis
+zlabel('Z'); % Label the z-axis
+title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
 
 HH2 = FuncMapConst(Map);
 Map = FuncSmoothN2(Map,10,HH2);
