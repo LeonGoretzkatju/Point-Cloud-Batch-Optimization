@@ -1,4 +1,4 @@
-function [ErrorS,Sum_Error,MSE_Error,IS,JP,JD] = FuncDiffJacobianStepTest(Map,Pose,Scan,MODE_DERIVATIVES,MODE_MAP)
+function [ErrorS,Sum_Error,MSE_Error,IS,IO,JP,JD,JO] = FuncDiffJacobianStepTest(Map,Pose,Odom,Scan,MODE_DERIVATIVES,MODE_MAP)
 
 Size_i = Map.Size_i;
 Size_j = Map.Size_j;
@@ -7,8 +7,9 @@ Origin = Map.Origin;
 
 nD = length(Scan); % the timestamp
 nPts = 0;
-
+Cnti = 1;
 cell_ErrorS = cell(1,nD);
+cell_ErrorO = cell(1,nD);
 
 cell_JPID1 = cell(1,nD);
 cell_JPID2 = cell(1,nD);
@@ -16,6 +17,10 @@ cell_JPVal = cell(1,nD);
 cell_JDID1 = cell(1,nD);
 cell_JDID2 = cell(1,nD);
 cell_JDVal = cell(1,nD);
+
+cell_JOID1 = cell(1,nD);
+cell_JOID2 = cell(1,nD);
+cell_JOVal = cell(1,nD);
 for k = 1:nD
     posek = Pose{k};
     [euler_angles, ~] = se3_to_euler_angles_translation(posek);
@@ -116,8 +121,76 @@ for k = 1:nD
     cell_JDID1{k} = reshape(dEdMID1',[],1);
     cell_JDID2{k} = reshape(dEdMID2',[],1);
     cell_JDVal{k} = reshape(dEdM',[],1);
+
+    if k < nD
+        posek1 = Pose{k+1};
+        [euler_anglesk, translationsk] = se3_to_euler_angles_translation(posek);
+        [euler_anglesk1, translationsk1] = se3_to_euler_angles_translation(posek1);
+        RZ = FuncRZ(euler_anglesk(1));
+        RY = FuncRY(euler_anglesk(2));
+        RX = FuncRX(euler_anglesk(3));
+        R = FuncR(RZ,RY,RX);
+        t = translationsk;
+        dRZdA = FuncdRZdA(euler_anglesk(1));
+        dRYdB = FuncdRYdB(euler_anglesk(2));
+        dRXdG = FuncdRXdG(euler_anglesk(3));
+        dRdA = FuncR(dRZdA,RY,RX);
+        dRdB = FuncR(RZ,dRYdB,RX);
+        dRdG = FuncR(RZ,RY,dRXdG);
+        t2 = translationsk1;
+        RZ2 = FuncRZ(euler_anglesk1(1));
+        RY2 = FuncRY(euler_anglesk1(2));
+        RX2 = FuncRX(euler_anglesk1(3));
+        R2 = FuncR(RZ2,RY2,RX2);  
+
+        dT = R'*(translationsk1-translationsk);
+        DeltaR = R'*R2;
+        Transk = Odom{k};
+        OdomR = Transk(1:3,1:3);
+        OdomT = Transk(1:3,4);
+        Euler_DeltaR = Rotation_to_Euler(DeltaR);
+        Euler_OdomR = Rotation_to_Euler(OdomR);
+        dEuler = Euler_DeltaR;
+        EOk = [dT;dEuler] - [OdomT;Euler_OdomR];
+        cell_ErrorO{k} = EOk;
+        Ri = R'*R2;
+        dRZ2dA2 = FuncdRZdA(euler_anglesk1(1));
+        dRY2dB2 = FuncdRYdB(euler_anglesk1(2));
+        dRX2dG2 = FuncdRXdG(euler_anglesk1(3));
+        dR2dA2 = FuncR(dRZ2dA2,RY2,RX2);
+        dR2dB2 = FuncR(RZ2,dRY2dB2,RX2);
+        dR2dG2 = FuncR(RZ2,RY2,dRX2dG2);
+        dRidA2 = R'*dR2dA2;
+        dRidB2 = R'*dR2dB2;
+        dRidG2 = R'*dR2dG2;
+        dRidA = dRdA'*R2;
+        dRidB = dRdB'*R2;
+        dRidG = dRdG'*R2;
+        ddA2 = FuncdRi(dRidA2,Ri);
+        ddB2 = FuncdRi(dRidB2,Ri);
+        ddG2 = FuncdRi(dRidG2,Ri);
+        ddA = FuncdRi(dRidA,Ri);
+        ddB = FuncdRi(dRidB,Ri);
+        ddG = FuncdRi(dRidG,Ri);
+        R_T = R';
+        a = (6*k-5:6*k)';
+        b = (6*k+1:6*k+6)';
+        cell_JOID1{k} = [Cnti;Cnti+1;Cnti+2;Cnti;Cnti+1;Cnti+2;Cnti;Cnti+1;...
+            Cnti+2;Cnti;Cnti+1;Cnti+2;Cnti;Cnti+1;Cnti+2;Cnti;Cnti+1;Cnti+2;...
+            Cnti;Cnti+1;Cnti+2;Cnti;Cnti+1;Cnti+2;Cnti;Cnti+1;Cnti+2;Cnti+3;...
+            Cnti+4;Cnti+5;Cnti+3;Cnti+4;Cnti+5;Cnti+3;Cnti+4;Cnti+5;Cnti+3;...
+            Cnti+4;Cnti+5;Cnti+3;Cnti+4;Cnti+5;Cnti+3;Cnti+4;Cnti+5];
+        cell_JOID2{k} = [a(1);a(1);a(1);a(2);a(2);a(2);a(3);a(3);a(3);a(4);...
+            a(4);a(4);a(5);a(5);a(5);a(6);a(6);a(6);b(1);b(1);b(1);b(2);b(2);...
+            b(2);b(3);b(3);b(3);a(4);a(4);a(4);a(5);a(5);a(5);a(6);a(6);a(6);...
+            b(4);b(4);b(4);b(5);b(5);b(5);b(6);b(6);b(6)];
+        cell_JOVal{k} = [-R_T(:,1);-R_T(:,2);-R_T(:,3);dRdA'*(t2-t);dRdB'*(t2-t);...
+            dRdG'*(t2-t);R_T(:,1);R_T(:,2);R_T(:,3);ddA;ddB;ddG;ddA2;ddB2;ddG2];
+        Cnti = Cnti+6;
+    end
 end
 ErrorS = vertcat(cell_ErrorS{:});
+ErrorO = vertcat(cell_ErrorO{:});
 
 JPID1 = vertcat(cell_JPID1{:});
 JPID2 = vertcat(cell_JPID2{:});
@@ -127,10 +200,16 @@ JDID1 = vertcat(cell_JDID1{:});
 JDID2 = vertcat(cell_JDID2{:});
 JDVal = vertcat(cell_JDVal{:});
 
+JOID1 = vertcat(cell_JOID1{:});
+JOID2 = vertcat(cell_JOID2{:});
+JOVal = horzcat(cell_JOVal{:});
+
 IS = GetInformationMfromS(ErrorS);
+IO = GetInformationMfromO(Odom);
+
 ErrorS = double(ErrorS);
-Sum_Error = ErrorS' * IS * ErrorS;
-MSE_Error = Sum_Error/(length(ErrorS));
+Sum_Error = ErrorS' * IS * ErrorS + ErrorO'*IO*ErrorO;
+MSE_Error = Sum_Error/(length(ErrorS)+length(ErrorO));
 
 JDVal = double(JDVal);
 JDID1 = double(JDID1);
@@ -139,4 +218,5 @@ JD = sparse(JDID1,JDID2,JDVal,nPts,Size_i*Size_j);
 
 JPVal = double(JPVal);
 JP = sparse(JPID1,JPID2,JPVal);
+JO = sparse(JOID1,JOID2,JOVal);
 end

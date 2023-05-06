@@ -1,5 +1,5 @@
-function RX = FuncRX(Gamma)
-
-RX = [1,0,0;
-      0,cos(Gamma),sin(Gamma);
-      0,-sin(Gamma),cos(Gamma)];
+function R_xGamma = FuncRX(Gamma)
+    R_xGamma = [1 0 0;
+        0 cos(Gamma) -sin(Gamma);
+        0 sin(Gamma) cos(Gamma)];
+end

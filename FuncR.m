@@ -1,3 +1,3 @@
-function R = FuncR(RX,RY,RZ)
-
-R = RX*RY*RZ;
+function R = FuncR(RZ,RY,RX)
+    R = RZ*RY*RX;
+end

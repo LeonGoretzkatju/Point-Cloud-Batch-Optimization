@@ -1,5 +1,5 @@
-function dRXdG = FuncdRXdG(Gammai)
-
-dRXdG = [0,0,0;
-         0,-sin(Gammai),cos(Gammai);
-         0,-cos(Gammai),-sin(Gammai)];
+function dRXdG = FuncdRXdG(Gamma)
+    dRXdG = [1 0 0;
+        0 -sin(Gamma) -cos(Gamma);
+        0 cos(Gamma) -sin(Gamma)];
+end
