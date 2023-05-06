@@ -1,4 +1,4 @@
-function [cell_ErrorS,JP,JD] = FuncDiffJacobianStepTest(Map,Pose,Scan,Odom,MODE_DERIVATIVES,MODE_MAP)
+function [ErrorS,Sum_Error,MSE_Error,IS,JP,JD] = FuncDiffJacobianStepTest(Map,Pose,Scan,MODE_DERIVATIVES,MODE_MAP)
 
 Size_i = Map.Size_i;
 Size_j = Map.Size_j;
@@ -117,6 +117,7 @@ for k = 1:nD
     cell_JDID2{k} = reshape(dEdMID2',[],1);
     cell_JDVal{k} = reshape(dEdM',[],1);
 end
+ErrorS = vertcat(cell_ErrorS{:});
 
 JPID1 = vertcat(cell_JPID1{:});
 JPID2 = vertcat(cell_JPID2{:});
@@ -125,6 +126,11 @@ JPVal = vertcat(cell_JPVal{:});
 JDID1 = vertcat(cell_JDID1{:});
 JDID2 = vertcat(cell_JDID2{:});
 JDVal = vertcat(cell_JDVal{:});
+
+IS = GetInformationMfromS(ErrorS);
+ErrorS = double(ErrorS);
+Sum_Error = ErrorS' * IS * ErrorS;
+MSE_Error = Sum_Error/(length(ErrorS));
 
 JDVal = double(JDVal);
 JDID1 = double(JDID1);
