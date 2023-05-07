@@ -26,16 +26,16 @@ KERNEL_SIZE = 6;
 DATA_MODE = 'REAL'; % REAL or SIMU
 
 % the weight of odometry input
-Lambda_O = 0;
+Lambda_O = 1;
 
 MODE_POSE = 'TRUE'; %If initial poses need to be calculated from odom
 
 %% Create Grid Map
 % CarPark Dataset
-Size_i = 61;
-Size_j = 99;
-Scale = 0.02;
-Origin = [-1323;-4038];
+Size_i = 300;
+Size_j = 480;
+Scale = 0.01;
+Origin = [-1.314;-4.033];
 
 % Create an empty cell array named Poses
 Trans = {};
@@ -56,11 +56,20 @@ for i = 1:num_of_planes
     ptCloud = pcread("plane_seq2\" + "plane" + i + ".pcd");
     pointclouds{end+1} = ptCloud;
 end
-gridStep = 20.0;
+gridStep = 10.0;
 for i = 1:numel(pointclouds)
     ptCloud_down_10 = pcdownsample(pointclouds{i},'gridAverage',gridStep);
     Downsample_points = FuncDownsamplePoints(ptCloud_down_10, Rate);
-    Downsample_pointclouds{end+1} = Downsample_points;
+    x = Downsample_points.Location(:,1);
+    y = Downsample_points.Location(:,2);
+    z = Downsample_points.Location(:,3);
+    x_new = x/1000.0;
+    y_new = y/1000.0;
+    z_new = z/1000.0;
+    % Create a new pointCloud object with the converted coordinates
+    xyz_meters = [x_new, y_new, z_new];
+    Downsample_points_new = pointCloud(xyz_meters);
+    Downsample_pointclouds{end+1} = Downsample_points_new;
 end
 % global_point_clouds = FuncCreateGlobalMapPoints(Pose, Downsample_pointclouds);
 % figure;
@@ -69,8 +78,8 @@ Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D(Map,Pose,Downsample_pointclouds);
 % Convert the grid to 3D points
 [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
-x = (i - 1) / Scale + Origin(1); % Convert i indices to x coordinates
-y = (j - 1) / Scale + Origin(2); % Convert j indices to y coordinates
+x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
+y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
 z = Map.Grid; % Use Grid values as z coordinates
 
 points = [x(:), y(:), z(:)];
@@ -97,9 +106,28 @@ Map = FuncSmoothN2(Map,10,HH2);
 if Lambda_O==0
     Odom = zeros(size(Pose,1)-1,3);
 end
-[ErrorS,Sum_Error,MSE_Error,IS,IO,JP,JD,JO] = FuncDiffJacobianStepTest(Map,Pose,Trans,...
+tic;
+[ErrorS,ErrorO,Sum_Error,MSE_Error,IS,IO,JP,JD,JO] = FuncDiffJacobianStepTest(Map,Pose,Trans,...
     Downsample_pointclouds,MODE_DERIVATIVES,...
     MODE_MAP);
+Iter_time = toc;
+fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+HH2 = FuncMapConst(Map); 
+Lambda = 0.000001;
+HH = HH2*Lambda;
+total_time = Iter_time;
+Sum_Delta = 22;
+MaxIter = MAX_ITER;
+MinError = 1e-8;
+MinDelta = 1e-10;
+tem_MSE = 10;
+Over_Num = 0;
+
+Iter = 1;
+Iter_minError = 10;
+index = [];
+Lambda = 0.000001;
+[DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O);
 % [Pose,Reason,Info,index] = FuncLeastSquaresBatch(Map,Pose,pointclouds,...
 %     Odom,MODE_DERIVATIVES,FILE_DIRECTORY,...
 %     MAX_ITER,MODE_MAP,Downsample_pointclouds,Size_i,Size_j,...

@@ -1,4 +1,4 @@
-function [ErrorS,Sum_Error,MSE_Error,IS,IO,JP,JD,JO] = FuncDiffJacobianStepTest(Map,Pose,Odom,Scan,MODE_DERIVATIVES,MODE_MAP)
+function [ErrorS,ErrorO,Sum_Error,MSE_Error,IS,IO,JP,JD,JO] = FuncDiffJacobianStepTest(Map,Pose,Odom,Scan,MODE_DERIVATIVES,MODE_MAP)
 
 Size_i = Map.Size_i;
 Size_j = Map.Size_j;
@@ -23,6 +23,9 @@ cell_JOID2 = cell(1,nD);
 cell_JOVal = cell(1,nD);
 for k = 1:nD
     posek = Pose{k};
+    pose_k_t = posek(1:3,4);
+    pose_k_t_meter = pose_k_t/1000.0;
+    posek(1:3,4) = pose_k_t_meter;
     [euler_angles, ~] = se3_to_euler_angles_translation(posek);
     Scan_k = Scan{k};
     xyk = Scan_k.Location(:,1:2)'; % Extract x and y values
@@ -30,7 +33,7 @@ for k = 1:nD
     XY1_Span = [xyk;zk];
     P = [xyk;zk;ones(1,size(zk,2))];
     Pwk = inv(posek)*P;
-    XY3 = (Pwk(1:2,:)-Origin)*Scale+1;    
+    XY3 = (Pwk(1:2,:)-Origin)/Scale+1;    
     if strcmp(MODE_MAP,'CONTINUOUS')==1
         Md = Map.DgridG(XY3(2,:),XY3(1,:)); % interpolant of map grid 
     else
@@ -81,11 +84,11 @@ for k = 1:nD
     cell_JPID2{k} = reshape(dEdPID2',[],1);
     cell_JPVal{k} = reshape(dEdP',[],1);
 
-    u = XY3(1,:); % x of grid map
-    v = XY3(2,:); % y of grid map
+%     u = XY3(1,:); % x of grid map
+%     v = XY3(2,:); % y of grid map
 
-%     u = max(XY3(1,:), 1); % x of grid map
-%     v = max(XY3(2,:), 1); % y of grid map
+    u = max(XY3(1,:), 1); % x of grid map
+    v = max(XY3(2,:), 1); % y of grid map
 
     u1 = fix(u); % Rounding to zero direction
     v1 = fix(v);

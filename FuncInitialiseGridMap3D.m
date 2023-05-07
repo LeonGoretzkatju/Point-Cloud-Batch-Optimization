@@ -8,6 +8,9 @@ function Map = FuncInitialiseGridMap3D(Map, Pose, PointCloudData)
     nPointClouds = length(PointCloudData); % Number of point clouds
     for i = 1:nPointClouds
         posei = Pose{i};
+        pose_i_t = posei(1:3,4);
+        pose_i_t_meter = pose_i_t/1000.0;
+        posei(1:3,4) = pose_i_t_meter;
         % Convert the transformation matrix to Euler angles and translation vector
         [euler_angles, translation] = se3_to_euler_angles_translation(posei);
         
@@ -20,7 +23,7 @@ function Map = FuncInitialiseGridMap3D(Map, Pose, PointCloudData)
         P = [xyi;zi;ones(1,size(zi,2))];
         Pwi = inv(T_reconstructed)*P;
         for j = 1:size(Pwi,2)
-            XY3 = (Pwi(1:2,j)-Origin)*Scale+1;
+            XY3 = (Pwi(1:2,j)-Origin)/Scale+1;
             u = XY3(1,:);
             v = XY3(2,:);
             ui = fix(u);
