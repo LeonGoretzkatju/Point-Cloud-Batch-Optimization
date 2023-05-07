@@ -71,7 +71,8 @@ for k = 1:nD
     dMdT = Scale*[dMdXY3(1,:);dMdXY3(2,:);zeros(1,size(dMdXY3,2))];
     dMdP = [dMdT;dMdR];
     dZdP = [dZdT;dZdR];
-    dEdP = dZdP-dMdP;
+%     dEdP = dZdP-dMdP;
+    dEdP = dMdP-dZdP;
 
     nPtsk = length(zk);
     IDk = nPts+1:nPts+nPtsk; %ID numer from 1 to nPtsk
@@ -102,10 +103,10 @@ for k = 1:nD
     width = size(dEdMID2,2);
     area = height * width;
     area_max = Size_i*Size_j;
-    disp("area");
-    disp(area);
-    disp("area_max: Size_i*Size_j");
-    disp(area_max);
+%     disp("area");
+%     disp(area);
+%     disp("area_max: Size_i*Size_j");
+%     disp(area_max);
     
 
     % Make sure dEdMID2 values are within the bounds of the sparse matrix
@@ -116,10 +117,10 @@ for k = 1:nD
     width = size(dEdMID2,2);
     area = height * width;
     area_max = Size_i*Size_j;
-    disp("area new");
-    disp(area);
-    disp("area_max: Size_i*Size_j");
-    disp(area_max);
+%     disp("area new");
+%     disp(area);
+%     disp("area_max: Size_i*Size_j");
+%     disp(area_max);
 
     cell_JDID1{k} = reshape(dEdMID1',[],1);
     cell_JDID2{k} = reshape(dEdMID2',[],1);

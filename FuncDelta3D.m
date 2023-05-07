@@ -7,17 +7,17 @@ JO = JO(:,7:end);
 [Size_i,Size_j] = size(Map.Grid);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Test 2021-01-11
-if Lambda ==0
-    index_JD = (JD~=0);
-    sum_JD = sum(index_JD,1);
-    index_JD = find(sum_JD<THRESHOLD);
-    index_Recover = find(sum_JD >=THRESHOLD);
-
-    JD(:,index_JD) = [];
-
-    HH(:,index_JD) = [];
-    HH(index_JD,:) = [];
-end
+% if Lambda ==0
+%     index_JD = (JD~=0);
+%     sum_JD = sum(index_JD,1);
+%     index_JD = find(sum_JD<THRESHOLD);
+%     index_Recover = find(sum_JD >=THRESHOLD);
+% 
+%     JD(:,index_JD) = [];
+% 
+%     HH(:,index_JD) = [];
+%     HH(index_JD,:) = [];
+% end
 
 
 

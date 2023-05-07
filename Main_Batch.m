@@ -26,7 +26,7 @@ KERNEL_SIZE = 6;
 DATA_MODE = 'REAL'; % REAL or SIMU
 
 % the weight of odometry input
-Lambda_O = 1;
+Lambda_O = 0.0;
 
 MODE_POSE = 'TRUE'; %If initial poses need to be calculated from odom
 
@@ -76,6 +76,49 @@ end
 % pcshow(global_point_clouds);
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D(Map,Pose,Downsample_pointclouds);
+
+HH2 = FuncMapConst(Map);
+Map = FuncSmoothN2(Map,10,HH2);
+[Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+
+%% Least Squares
+if Lambda_O==0
+    Odom = zeros(size(Pose,1)-1,3);
+end
+tic;
+[ErrorS,ErrorO,Sum_Error,MSE_Error,IS,IO,JP,JD,JO] = FuncDiffJacobianStepTest(Map,Pose,Trans,...
+    Downsample_pointclouds,MODE_DERIVATIVES,...
+    MODE_MAP);
+Iter_time = toc;
+fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+total_time = Iter_time;
+Sum_Delta = 22;
+MaxIter = MAX_ITER;
+MinError = 1e-8;
+MinDelta = 1e-10;
+tem_MSE = 10;
+Over_Num = 0;
+
+Iter = 0;
+Iter_minError = 10;
+index = [];
+while Iter <= 5
+    HH2 = FuncMapConst(Map); 
+    Lambda = 0.0000001;
+    HH = HH2*Lambda;
+    [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O);
+    Pose_Vector = FuncParamPose(Pose);
+    [Map,Pose_Vector_new] = FuncUpdate3D(Map,Pose_Vector,DeltaP,DeltaD);
+    Pose = FuncInverParamPose(Pose_Vector_new);
+    [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+    tic;
+    [ErrorS,ErrorO,Sum_Error,MSE_Error,IS,IO,JP,JD,JO] = FuncDiffJacobianStepTest(Map,Pose,Trans,...
+        Downsample_pointclouds,MODE_DERIVATIVES,...
+        MODE_MAP);
+    Iter_time = toc;
+    fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+    Iter = Iter+1;
+end
 % Convert the grid to 3D points
 [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
 x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
@@ -97,39 +140,3 @@ xlabel('X'); % Label the x-axis
 ylabel('Y'); % Label the y-axis
 zlabel('Z'); % Label the z-axis
 title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
-
-HH2 = FuncMapConst(Map);
-Map = FuncSmoothN2(Map,10,HH2);
-[Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
-
-%% Least Squares
-if Lambda_O==0
-    Odom = zeros(size(Pose,1)-1,3);
-end
-tic;
-[ErrorS,ErrorO,Sum_Error,MSE_Error,IS,IO,JP,JD,JO] = FuncDiffJacobianStepTest(Map,Pose,Trans,...
-    Downsample_pointclouds,MODE_DERIVATIVES,...
-    MODE_MAP);
-Iter_time = toc;
-fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
-HH2 = FuncMapConst(Map); 
-Lambda = 0.000001;
-HH = HH2*Lambda;
-total_time = Iter_time;
-Sum_Delta = 22;
-MaxIter = MAX_ITER;
-MinError = 1e-8;
-MinDelta = 1e-10;
-tem_MSE = 10;
-Over_Num = 0;
-
-Iter = 1;
-Iter_minError = 10;
-index = [];
-Lambda = 0.000001;
-[DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O);
-% [Pose,Reason,Info,index] = FuncLeastSquaresBatch(Map,Pose,pointclouds,...
-%     Odom,MODE_DERIVATIVES,FILE_DIRECTORY,...
-%     MAX_ITER,MODE_MAP,Downsample_pointclouds,Size_i,Size_j,...
-%     Scale,Origin,DOWN_TIME,...
-%     Lambda_O,Lambda_N,MULTI_MODE,EVALUTION_GT,Rate,KERNEL_SIZE);
