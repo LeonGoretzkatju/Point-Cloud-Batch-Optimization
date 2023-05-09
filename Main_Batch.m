@@ -11,7 +11,7 @@ FILE_DIRECTORY = 'Results/test';
 
 MODE_MAP = 'CONTINUOUS'; % CONTINUOUS or DISCRETE
 
-Rate = 10; % Down Sampling Rate of Map at first
+Rate = 1; % Down Sampling Rate of Map at first
 
 DOWN_TIME = 50; % Down Sampling Times
 
@@ -56,10 +56,11 @@ for i = 1:num_of_planes
     ptCloud = pcread("plane_seq2\" + "plane" + i + ".pcd");
     pointclouds{end+1} = ptCloud;
 end
-gridStep = 10.0;
+gridStep = 5.0;
 for i = 1:numel(pointclouds)
-    ptCloud_down_10 = pcdownsample(pointclouds{i},'gridAverage',gridStep);
-    Downsample_points = FuncDownsamplePoints(ptCloud_down_10, Rate);
+%     ptCloud_down_10 = pcdownsample(pointclouds{i},'gridAverage',gridStep);
+%     Downsample_points = FuncDownsamplePoints(ptCloud_down_10, Rate);
+    Downsample_points = pointclouds{i};
     x = Downsample_points.Location(:,1);
     y = Downsample_points.Location(:,2);
     z = Downsample_points.Location(:,3);
@@ -91,6 +92,7 @@ tic;
     MODE_MAP);
 Iter_time = toc;
 fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+% fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
 total_time = Iter_time;
 Sum_Delta = 22;
 MaxIter = MAX_ITER;
@@ -102,9 +104,9 @@ Over_Num = 0;
 Iter = 0;
 Iter_minError = 10;
 index = [];
-while Iter <= 5
+while Iter <= 3
     HH2 = FuncMapConst(Map); 
-    Lambda = 0.0000001;
+    Lambda = 0.0001;
     HH = HH2*Lambda;
     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O);
     Pose_Vector = FuncParamPose(Pose);
@@ -116,7 +118,7 @@ while Iter <= 5
         Downsample_pointclouds,MODE_DERIVATIVES,...
         MODE_MAP);
     Iter_time = toc;
-    fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+    fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
     Iter = Iter+1;
 end
 % Convert the grid to 3D points

@@ -4,33 +4,33 @@ THRESHOLD = 7;
 JP = JP(:,7:end);
 JO = JO(:,7:end);
 
-[Size_i,Size_j] = size(Map.Grid);
+Size_i = Map.Size_i;
+Size_j = Map.Size_j;
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Test 2021-01-11
-% if Lambda ==0
-%     index_JD = (JD~=0);
-%     sum_JD = sum(index_JD,1);
-%     index_JD = find(sum_JD<THRESHOLD);
-%     index_Recover = find(sum_JD >=THRESHOLD);
-% 
-%     JD(:,index_JD) = [];
-% 
-%     HH(:,index_JD) = [];
-%     HH(index_JD,:) = [];
-% end
+if Lambda ==0
+    index_JD = (JD~=0);
+    sum_JD = sum(index_JD,1);
+    index_JD = find(sum_JD<THRESHOLD);
+    index_Recover = find(sum_JD >=THRESHOLD);
+
+    JD(:,index_JD) = [];
+
+    HH(:,index_JD) = [];
+    HH(index_JD,:) = [];
+end
 
 
 
-U = JP'*IS*JP+Lambda_O*JO'*IO*JO;
+U = JP'*IS*JP;
 V = JD'*IS*JD;
 
 W = JP'*IS*JD;
 
 
 ErrorS = sparse(ErrorS);
-ErrorO = sparse(ErrorO);
 
-EP = -JP'*IS*ErrorS-Lambda_O*JO'*IO*ErrorO;
+EP = -JP'*IS*ErrorS;
 ED = -JD'*IS*ErrorS;
 
 XH0 = reshape(Map.Grid',[],1);
@@ -64,4 +64,5 @@ end
 clearvars II EE
 
 Sum_Delta = Delta'*Delta;
+
 end

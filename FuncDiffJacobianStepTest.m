@@ -35,9 +35,9 @@ for k = 1:nD
     Pwk = inv(posek)*P;
     XY3 = (Pwk(1:2,:)-Origin)/Scale+1;    
     if strcmp(MODE_MAP,'CONTINUOUS')==1
-        Md = Map.DgridG(XY3(2,:),XY3(1,:)); % interpolant of map grid 
+        Md = Map.DgridG(XY3(1,:),XY3(2,:)); % interpolant of map grid 
     else
-        Md = Map.DgridG(round(XY3(2,:)),round(XY3(1,:)));
+        Md = Map.DgridG(round(XY3(1,:)),round(XY3(2,:)));
     end
     Ek = Md - zk;
     cell_ErrorS{k} = Ek';
@@ -49,15 +49,20 @@ for k = 1:nD
         
     else
         if strcmp(MODE_MAP,'CONTINUOUS')==1
-            dMdXY3 = [Map.DgridGu(XY3(2,:),XY3(1,:));Map.DgridGv(XY3(2,:),XY3(1,:))]; % derivative of Grid Map with x,y/N
+%             dMdXY3 = [Map.DgridGu(XY3(2,:),XY3(1,:));Map.DgridGv(XY3(2,:),XY3(1,:))]; % derivative of Grid Map with x,y/N
+            dMdXY3 = [Map.DgridGv(XY3(1,:),XY3(2,:));Map.DgridGu(XY3(1,:),XY3(2,:))];
         else
             dMdXY3 = [Map.DgridGu(round_XY3)';Map.DgridGv(round_XY3)'];
         end
     end
+    Ryaw = FuncRZ(euler_angles(1));
+    Rpitch = FuncRY(euler_angles(2));
+    Rroll = FuncRX(euler_angles(3));
+
     [dRyaw,dRpitch,dRroll] = DiffRotationMatrix(euler_angles);
-    dXY3dRyaw = dRyaw'*XY1_Span*Scale;
-    dXY3dRpitch = dRpitch'*XY1_Span*Scale;
-    dXY3dRroll = dRroll'*XY1_Span*Scale;
+    dXY3dRyaw = (dRyaw*Rpitch*Rroll)'*XY1_Span/Scale;
+    dXY3dRpitch = (Ryaw*dRpitch*Rroll)'*XY1_Span/Scale;
+    dXY3dRroll = (Ryaw*Rpitch*dRroll)'*XY1_Span/Scale;
     dMdRyaw = sum(dMdXY3.*dXY3dRyaw(1:2,:));
     dMdRpitch = sum(dMdXY3.*dXY3dRpitch(1:2,:));
     dMdRroll = sum(dMdXY3.*dXY3dRroll(1:2,:));
@@ -65,10 +70,10 @@ for k = 1:nD
     dZdRpitch = dXY3dRpitch(3,:);
     dZdRroll = dXY3dRroll(3,:);
     dZdR = [dZdRyaw;dZdRpitch;dZdRroll];
-    dZdT = Scale*[zeros(1,size(dMdXY3,2));...
-        zeros(1,size(dMdXY3,2));ones(1,size(dMdXY3,2))];
+    dZdT = [zeros(1,size(dMdXY3,2));...
+        zeros(1,size(dMdXY3,2));ones(1,size(dMdXY3,2))]/Scale;
     dMdR = [dMdRyaw;dMdRpitch;dMdRroll];
-    dMdT = Scale*[dMdXY3(1,:);dMdXY3(2,:);zeros(1,size(dMdXY3,2))];
+    dMdT = [dMdXY3(1,:);dMdXY3(2,:);zeros(1,size(dMdXY3,2))]/Scale;
     dMdP = [dMdT;dMdR];
     dZdP = [dZdT;dZdR];
 %     dEdP = dZdP-dMdP;
@@ -95,7 +100,7 @@ for k = 1:nD
     v1 = fix(v);
     
     dEdM = [(v1+1-v).*(u1+1-u);(v-v1).*(u1+1-u);(v1+1-v).*(u-u1);(v-v1).*(u-u1)];
-    dEdMID2 = [Size_j*(v1-1)+u1;Size_j*v1+u1;Size_j*(v1-1)+u1+1;Size_j*v1+u1+1];
+    dEdMID2 = [Size_j*(u1-1)+v1;Size_j*u1+v1;Size_j*(u1-1)+v1+1;Size_j*u1+v1+1];
     dEdMID1 = repmat(IDk,4,1);
 
     
@@ -130,6 +135,8 @@ for k = 1:nD
         posek1 = Pose{k+1};
         [euler_anglesk, translationsk] = se3_to_euler_angles_translation(posek);
         [euler_anglesk1, translationsk1] = se3_to_euler_angles_translation(posek1);
+        translationsk = translationsk / 1000.0;
+        translationsk1 = translationsk1 / 1000.0;
         RZ = FuncRZ(euler_anglesk(1));
         RY = FuncRY(euler_anglesk(2));
         RX = FuncRX(euler_anglesk(3));
@@ -151,7 +158,7 @@ for k = 1:nD
         DeltaR = R'*R2;
         Transk = Odom{k};
         OdomR = Transk(1:3,1:3);
-        OdomT = Transk(1:3,4);
+        OdomT = Transk(1:3,4)/1000.0;
         Euler_DeltaR = Rotation_to_Euler(DeltaR);
         Euler_OdomR = Rotation_to_Euler(OdomR);
         dEuler = Euler_DeltaR;
@@ -212,8 +219,10 @@ IS = GetInformationMfromS(ErrorS);
 IO = GetInformationMfromO(Odom);
 
 ErrorS = double(ErrorS);
-Sum_Error = ErrorS' * IS * ErrorS + ErrorO'*IO*ErrorO;
-MSE_Error = Sum_Error/(length(ErrorS)+length(ErrorO));
+% Sum_Error = ErrorS' * IS * ErrorS + ErrorO'*IO*ErrorO;
+Sum_Error = ErrorS' * IS * ErrorS;
+% MSE_Error = Sum_Error/(length(ErrorS)+length(ErrorO));
+MSE_Error = Sum_Error/(length(ErrorS));
 
 JDVal = double(JDVal);
 JDID1 = double(JDID1);
