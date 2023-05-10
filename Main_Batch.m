@@ -38,14 +38,16 @@ Scale = 0.01;
 Origin = [-1.314;-4.033];
 
 % Create an empty cell array named Poses
-Trans = {};
+Trans_original = {};
 
 % Use a loop to store the poses in the Poses cell array
 num_of_planes = 6;
 for i = 1:num_of_planes-1
     pose_name = sprintf('pose%d', i);
-    Trans{i} = eval(pose_name);
+    Trans_original{i} = eval(pose_name);
 end
+
+Trans = Trans_Preprocess(Trans_original);
 
 if strcmp(MODE_POSE,'TRUE')==1
     Pose = FuncPosefromTrans(Trans,num_of_planes);
@@ -77,7 +79,27 @@ end
 % pcshow(global_point_clouds);
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D(Map,Pose,Downsample_pointclouds);
-
+% % Convert the grid to 3D points
+% [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
+% x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
+% y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
+% z = Map.Grid; % Use Grid values as z coordinates
+% 
+% points = [x(:), y(:), z(:)];
+% 
+% % Remove points with zero occupancy values to improve visualization
+% points = points(z(:) > 0, :);
+% 
+% % Create a pointCloud object
+% global_points = pointCloud(points);
+% 
+% % Visualize the point cloud
+% figure; % Create a new figure
+% pcshow(global_points); % Display the 3D point cloud
+% xlabel('X'); % Label the x-axis
+% ylabel('Y'); % Label the y-axis
+% zlabel('Z'); % Label the z-axis
+% title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
 HH2 = FuncMapConst(Map);
 Map = FuncSmoothN2(Map,10,HH2);
 [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
@@ -104,14 +126,15 @@ Over_Num = 0;
 Iter = 0;
 Iter_minError = 10;
 index = [];
-while Iter <= 3
+while Iter <= 10
     HH2 = FuncMapConst(Map); 
-    Lambda = 0.0001;
+    Lambda = 0.0;
     HH = HH2*Lambda;
     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O);
     Pose_Vector = FuncParamPose(Pose);
     [Map,Pose_Vector_new] = FuncUpdate3D(Map,Pose_Vector,DeltaP,DeltaD);
     Pose = FuncInverParamPose(Pose_Vector_new);
+    Map = FuncInitialiseGridMap3D(Map,Pose,Downsample_pointclouds);
     [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
     tic;
     [ErrorS,ErrorO,Sum_Error,MSE_Error,IS,IO,JP,JD,JO] = FuncDiffJacobianStepTest(Map,Pose,Trans,...

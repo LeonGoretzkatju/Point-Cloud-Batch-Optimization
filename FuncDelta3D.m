@@ -2,7 +2,6 @@ function [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,I
 THRESHOLD = 7;
 
 JP = JP(:,7:end);
-JO = JO(:,7:end);
 
 Size_i = Map.Size_i;
 Size_j = Map.Size_j;

@@ -9,9 +9,6 @@ function Map = FuncInitialiseGridMap3D(Map, Pose, PointCloudData)
     Grid(:,:) = -2;
     for i = 1:nPointClouds
         posei = Pose{i};
-        pose_i_t = posei(1:3,4);
-        pose_i_t_meter = pose_i_t/1000.0;
-        posei(1:3,4) = pose_i_t_meter;
         % Convert the transformation matrix to Euler angles and translation vector
 %         [euler_angles, translation] = se3_to_euler_angles_translation(posei);
         
