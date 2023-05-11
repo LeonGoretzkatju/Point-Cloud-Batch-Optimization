@@ -80,7 +80,7 @@ end
 % pcshow(global_point_clouds);
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D(Map,Pose,Downsample_pointclouds);
-% % Convert the grid to 3D points
+% Convert the grid to 3D points
 % [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
 % x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
 % y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
@@ -129,7 +129,7 @@ Iter_minError = 10;
 index = [];
 while Iter <= 2
     HH2 = FuncMapConst(Map); 
-    Lambda = 0.0;
+    Lambda = 0.01;
     HH = HH2*Lambda;
     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O);
 %     [DeltaP_PoseOnly,Sum_Delta_PoseOnly] = FuncDelta3DPoseOnly(JP,ErrorS,IS);
@@ -156,7 +156,7 @@ z = Map.Grid; % Use Grid values as z coordinates
 points = [x(:), y(:), z(:)];
 
 % Remove points with zero occupancy values to improve visualization
-points = points(z(:) > 0, :);
+points = points(z(:) > 0.5, :);
 
 % Create a pointCloud object
 global_points = pointCloud(points);

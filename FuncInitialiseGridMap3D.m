@@ -6,6 +6,7 @@ function Map = FuncInitialiseGridMap3D(Map, Pose, PointCloudData)
     Scale = Map.Scale;
     Origin = Map.Origin;
     nPointClouds = length(PointCloudData); % Number of point clouds
+    Hit_map = zeros(Size_i,Size_j);
     for i = 1:nPointClouds
         posei = Pose{i};
         % Convert the transformation matrix to Euler angles and translation vector
@@ -28,6 +29,7 @@ function Map = FuncInitialiseGridMap3D(Map, Pose, PointCloudData)
             zi = Pwi(3,j);
             if (ui >= 1 && ui <= Size_i) && (vi >= 1 && vi <= Size_j)
                 Grid(ui,vi) = zi;
+                Hit_map(ui,vi) = Hit_map(ui,vi) + 1;
             end
         end
     end
