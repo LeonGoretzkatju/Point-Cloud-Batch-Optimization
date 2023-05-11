@@ -7,10 +7,10 @@ function [Map, Pose] = FuncUpdate3D(Map, Pose, DeltaP, DeltaD)
     DeltaD2 = reshape(DeltaD, Size_i, Size_j);
 
     % Find outliers in DeltaD2 with absolute values larger than 0.08
-    outliers = abs(DeltaD2) >= 0.05;
+    outliers = abs(DeltaD2) >= 0.02;
 
     % Set outlier elements to zero
     DeltaD2(outliers) = 0;
 
-    Map.Grid = Map.Grid + DeltaD2;
+    Map.Grid = Map.Grid - DeltaD2;
 end
