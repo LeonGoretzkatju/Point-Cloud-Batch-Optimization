@@ -68,13 +68,9 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
         cell_JPID1{k} = reshape(dEdPID1',[],1);
         cell_JPID2{k} = reshape(dEdPID2',[],1);
         cell_JPVal{k} = reshape(dEdP',[],1);
-
-        cell_JPID1{k} = reshape(dEdPID1',[],1);
-        cell_JPID2{k} = reshape(dEdPID2',[],1);
-        cell_JPVal{k} = reshape(dMdP',[],1);
             
-        u = XY3(1,:); % x of grid map
-        v = XY3(2,:); % y of grid map
+        u = max(XY3(1,:), 1); % x of grid map
+        v = max(XY3(2,:), 1); % y of grid map
         u1 = fix(u); % Rounding to zero direction
         v1 = fix(v);
         
