@@ -1,10 +1,10 @@
-function [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O)
+function [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,ErrorS,HH,Map,IS,Lambda)
+
 THRESHOLD = 7;
 
 JP = JP(:,7:end);
 
-Size_i = Map.Size_i;
-Size_j = Map.Size_j;
+[Size_i,Size_j] = size(Map.Grid);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Test 2021-01-11
 if Lambda ==0
