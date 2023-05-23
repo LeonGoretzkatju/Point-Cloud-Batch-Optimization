@@ -14,11 +14,15 @@ function Map = FuncInitialiseGridMap3D_New(Map, Pose, PointCloudData)
         % Convert the Euler angles and translation vector back to an SE(3) matrix
 %         T_reconstructed = euler_angles_translation_to_se3(euler_angles, translation);
         T_reconstructed = posei;
+        Rwi = T_reconstructed(1:3,1:3);
+        twi = T_reconstructed(1:3,4);
         pointCloud_i = PointCloudData{i};
         xyi = pointCloud_i.Location(:,1:2)'; % Extract x and y values
         zi = pointCloud_i.Location(:,3)'; % Extract z values as the new Oddi
-        P = [xyi;zi;ones(1,size(zi,2))];
-        Pwi = inv(T_reconstructed)*P;
+        xyzi = [xyi;zi];
+        Pwi = Rwi'*(xyzi-twi);
+%         P = [xyi;zi;ones(1,size(zi,2))];
+%         Pwi = inv(T_reconstructed)*P;
         for j = 1:size(Pwi,2)
             XY3 = (Pwi(1:2,j)-Origin)/Scale+1;
             u = XY3(1,:);
