@@ -107,8 +107,30 @@ if Lambda_O==0
     Odom = zeros(size(Pose,1)-1,3);
 end
 tic;
-[ErrorS,MSE_Error] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
+[ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
     Downsample_pointclouds,MODE_DERIVATIVES,...
     MODE_MAP);
 Iter_time = toc;
 fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+Iter = 0;
+Iter_minError = 10;
+index = [];
+while Iter <= 2
+    %     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O);
+%     [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JP,JD,ErrorS,HH,Map);
+    [DeltaP_PoseOnly,Sum_Delta_PoseOnly] = FuncDelta3DPoseOnly(JP,ErrorS,IS);
+    Pose_Vector = FuncParamPose(Pose);
+%     [Map,Pose_Vector_new] = FuncUpdate3D(Map,Pose_Vector,DeltaP,DeltaD);
+%     Map = FuncUpdateMapOnly(Map,DeltaD);
+    [Pose_Vector_new_PoseOnly] = FuncUpdate3DPoseOnly(Pose_Vector,DeltaP_PoseOnly);
+    Pose = FuncInverParamPose(Pose_Vector_new_PoseOnly);
+    Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
+    [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+    tic;
+    [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
+    Downsample_pointclouds,MODE_DERIVATIVES,...
+    MODE_MAP);
+    Iter_time = toc;
+    fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+    Iter = Iter+1;
+end

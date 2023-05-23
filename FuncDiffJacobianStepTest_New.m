@@ -1,4 +1,4 @@
-function [ErrorS,MSE_Error] = FuncDiffJacobianStepTest(Map,Pose,Odom,Scan,MODE_DERIVATIVES,MODE_MAP)
+function [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose,Odom,Scan,MODE_DERIVATIVES,MODE_MAP)
     Size_i = Map.Size_i;
     Size_j = Map.Size_j;
     Scale = Map.Scale;
@@ -36,10 +36,47 @@ function [ErrorS,MSE_Error] = FuncDiffJacobianStepTest(Map,Pose,Odom,Scan,MODE_D
         Ek = Md - zk;
         cell_ErrorS{k} = Ek';
         dMdXY3 = [Map.DgridGu(XY3(2,:),XY3(1,:));Map.DgridGv(XY3(2,:),XY3(1,:))];
+        Ryaw = FuncRZ(euler_angles(1));
+        Rpitch = FuncRY(euler_angles(2));
+        Rroll = FuncRX(euler_angles(3));
+    
+        [dRyaw,dRpitch,dRroll] = DiffRotationMatrix(euler_angles);
+        dXY3dRyaw = Rroll'*Rpitch'*(dRyaw)'*XY1_Span/Scale;
+        dXY3dRpitch = Rroll'*(dRpitch)'*Ryaw'*XY1_Span/Scale;
+        dXY3dRroll = (dRroll)'*Rpitch'*Ryaw'*XY1_Span/Scale;
+        dMdRyaw = sum(dMdXY3.*dXY3dRyaw(1:2,:));
+        dMdRpitch = sum(dMdXY3.*dXY3dRpitch(1:2,:));
+        dMdRroll = sum(dMdXY3.*dXY3dRroll(1:2,:));
+        dZdRyaw = dXY3dRyaw(3,:);
+        dZdRpitch = dXY3dRpitch(3,:);
+        dZdRroll = dXY3dRroll(3,:);
+        dZdR = [dZdRyaw;dZdRpitch;dZdRroll];
+        dZdT = [zeros(1,size(XY1_Span,2));...
+            zeros(1,size(XY1_Span,2));ones(1,size(XY1_Span,2))]/Scale;
+        dMdR = [dMdRyaw;dMdRpitch;dMdRroll];
+        dMdT = [dMdXY3(1,:);dMdXY3(2,:);zeros(1,size(XY1_Span,2))]/Scale;
+        dMdP = [dMdT;dMdR];
+        dZdP = [dZdT;dZdR];
+    %     dEdP = dZdP-dMdP;
+        dEdP = dMdP-dZdP;
+        nPtsk = length(zk);
+        IDk = nPts+1:nPts+nPtsk; %ID numer from 1 to nPtsk
+        nPts = nPts+nPtsk;
+        dEdPID1 = repmat(IDk,6,1);
+        dEdPID2 = repmat(6*(k-1)+1:6*k,nPtsk,1)';
+    
+        cell_JPID1{k} = reshape(dEdPID1',[],1);
+        cell_JPID2{k} = reshape(dEdPID2',[],1);
+        cell_JPVal{k} = reshape(dEdP',[],1);
     end
     ErrorS = vertcat(cell_ErrorS{:});
+    JPID1 = vertcat(cell_JPID1{:});
+    JPID2 = vertcat(cell_JPID2{:});
+    JPVal = vertcat(cell_JPVal{:});
     ErrorS = double(ErrorS);
     IS = GetInformationMfromS(ErrorS);
     Sum_Error = ErrorS'*IS*ErrorS;
     MSE_Error = Sum_Error/(length(ErrorS));
+    JPVal = double(JPVal);
+    JP = sparse(JPID1,JPID2,JPVal);
 end
