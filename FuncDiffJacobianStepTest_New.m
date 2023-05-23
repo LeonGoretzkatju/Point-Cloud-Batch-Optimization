@@ -1,4 +1,4 @@
-function [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose,Odom,Scan,MODE_DERIVATIVES,MODE_MAP)
+function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odom,Scan,MODE_DERIVATIVES,MODE_MAP)
     Size_i = Map.Size_i;
     Size_j = Map.Size_j;
     Scale = Map.Scale;
@@ -68,15 +68,42 @@ function [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose,Odom,S
         cell_JPID1{k} = reshape(dEdPID1',[],1);
         cell_JPID2{k} = reshape(dEdPID2',[],1);
         cell_JPVal{k} = reshape(dEdP',[],1);
+
+        cell_JPID1{k} = reshape(dEdPID1',[],1);
+        cell_JPID2{k} = reshape(dEdPID2',[],1);
+        cell_JPVal{k} = reshape(dMdP',[],1);
+            
+        u = XY3(1,:); % x of grid map
+        v = XY3(2,:); % y of grid map
+        u1 = fix(u); % Rounding to zero direction
+        v1 = fix(v);
+        
+        dEdM = [(v1+1-v).*(u1+1-u);(v-v1).*(u1+1-u);(v1+1-v).*(u-u1);(v-v1).*(u-u1)];
+        dEdMID2 = [Size_j*(v1-1)+u1;Size_j*v1+u1;Size_j*(v1-1)+u1+1;Size_j*v1+u1+1];
+        dEdMID1 = repmat(IDk,4,1);
+    
+        cell_JDID1{k} = reshape(dEdMID1',[],1);
+        cell_JDID2{k} = reshape(dEdMID2',[],1);
+        cell_JDVal{k} = reshape(dEdM',[],1);
     end
     ErrorS = vertcat(cell_ErrorS{:});
     JPID1 = vertcat(cell_JPID1{:});
     JPID2 = vertcat(cell_JPID2{:});
     JPVal = vertcat(cell_JPVal{:});
+
+    JDID1 = vertcat(cell_JDID1{:});
+    JDID2 = vertcat(cell_JDID2{:});
+    JDVal = vertcat(cell_JDVal{:});
+
     ErrorS = double(ErrorS);
     IS = GetInformationMfromS(ErrorS);
     Sum_Error = ErrorS'*IS*ErrorS;
     MSE_Error = Sum_Error/(length(ErrorS));
     JPVal = double(JPVal);
     JP = sparse(JPID1,JPID2,JPVal);
+
+    JDVal = double(JDVal);
+    JDID1 = double(JDID1);
+    JDID2 = double(JDID2);
+    JD = sparse(JDID1,JDID2,JDVal,nPts,Size_i*Size_j);
 end
