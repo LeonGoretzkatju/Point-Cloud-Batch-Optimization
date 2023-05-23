@@ -1,4 +1,4 @@
-function Map = FuncInitialiseGridMap3D(Map, Pose, PointCloudData)
+function Map = FuncInitialiseGridMap3D_New(Map, Pose, PointCloudData)
     Size_i = Map.Size_i;
     Size_j = Map.Size_j;
     Grid = Map.Grid;
@@ -26,8 +26,8 @@ function Map = FuncInitialiseGridMap3D(Map, Pose, PointCloudData)
             ui = fix(u);
             vi = fix(v);
             zi = Pwi(3,j);
-            if (ui >= 1 && ui <= Size_i) && (vi >= 1 && vi <= Size_j)
-                Grid(ui,vi) = zi;
+            if (ui >= 1 && ui <= Size_j) && (vi >= 1 && vi <= Size_i)
+                Grid(vi,ui) = zi;
             end
         end
     end

@@ -100,30 +100,6 @@ for k = 1:nD
     dEdMID2 = [Size_j*(u1-1)+v1;Size_j*u1+v1;Size_j*(u1-1)+v1+1;Size_j*u1+v1+1];
     dEdMID1 = repmat(IDk,4,1);
 
-    
-    height = size(dEdMID2,1);
-    width = size(dEdMID2,2);
-    area = height * width;
-    area_max = Size_i*Size_j;
-%     disp("area");
-%     disp(area);
-%     disp("area_max: Size_i*Size_j");
-%     disp(area_max);
-    
-
-    % Make sure dEdMID2 values are within the bounds of the sparse matrix
-    max_u_index = Size_i * Size_j;
-    dEdMID2 = min(dEdMID2, max_u_index);
-
-    height = size(dEdMID2,1);
-    width = size(dEdMID2,2);
-    area = height * width;
-    area_max = Size_i*Size_j;
-%     disp("area new");
-%     disp(area);
-%     disp("area_max: Size_i*Size_j");
-%     disp(area_max);
-
     cell_JDID1{k} = reshape(dEdMID1',[],1);
     cell_JDID2{k} = reshape(dEdMID2',[],1);
     cell_JDVal{k} = reshape(dEdM',[],1);
