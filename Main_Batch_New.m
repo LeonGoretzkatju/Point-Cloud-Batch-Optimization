@@ -134,25 +134,25 @@ while Iter <= 3
     fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
     Iter = Iter+1;
 end
-% tic;
-% [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
-%     Downsample_pointclouds,MODE_DERIVATIVES,...
-%     MODE_MAP);
-% Iter_time = toc;
-% fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
-% Ite_num = 0;
-% while Ite_num <= 2
-%     HH2 = FuncMapConst(Map); 
-%     Lambda = 0.00001;
-%     HH = HH2*Lambda;
-%     [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JP,JD,ErrorS,HH,Map);
-%     Map = FuncUpdateMapOnly(Map,DeltaD);
-%     [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
-%     tic;
-%     [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
-%     Downsample_pointclouds,MODE_DERIVATIVES,...
-%     MODE_MAP);
-%     Iter_time = toc;
-%     fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
-%     Ite_num = Ite_num+1;
-% end
+tic;
+[ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
+    Downsample_pointclouds,MODE_DERIVATIVES,...
+    MODE_MAP);
+Iter_time = toc;
+fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+Ite_num = 0;
+while Ite_num <= 2
+    HH2 = FuncMapConst(Map); 
+    Lambda = 0.001;
+    HH = HH2*Lambda;
+    [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JP,JD,ErrorS,HH,Map);
+    Map = FuncUpdateMapOnly(Map,DeltaD);
+    [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+    tic;
+    [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
+    Downsample_pointclouds,MODE_DERIVATIVES,...
+    MODE_MAP);
+    Iter_time = toc;
+    fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+    Ite_num = Ite_num+1;
+end
