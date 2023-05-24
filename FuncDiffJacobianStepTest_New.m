@@ -51,29 +51,20 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
         dMdR = [dMdRyaw;dMdRpitch;dMdRroll];
 
         xyzk_length = size(xyzk,2);
-        dMdtx = zeros(1,xyzk_length);
-        dMdty = zeros(1,xyzk_length);
-        dMdtz = zeros(1,xyzk_length);
-        for i = 1:xyzk_length
-            dMdtx(i) = sum(dMdXY3(:,i).*dXY3dtx(1:2,1));
-            dMdty(i) = sum(dMdXY3(:,i).*dXY3dty(1:2,1));
-            dMdtz(i) = sum(dMdXY3(:,i).*dXY3dtz(1:2,1));
-        end
+        dMdtx = sum(dMdXY3 .* dXY3dtx(1:2,1), 1);
+        dMdty = sum(dMdXY3 .* dXY3dty(1:2,1), 1);
+        dMdtz = sum(dMdXY3 .* dXY3dtz(1:2,1), 1);
         dMdT = [dMdtx;dMdty;dMdtz];
         dMdP = [dMdT;dMdR];
-
+        
         dZdRyaw = dXY3dRyaw(3,:);
         dZdRpitch = dXY3dRpitch(3,:);
         dZdRroll = dXY3dRroll(3,:);
         dZdR = [dZdRyaw;dZdRpitch;dZdRroll];
-        dZdT = zeros(3,xyzk_length);
-        for j = 1:xyzk_length
-            dZdT(1,j) = dXY3dtx(3,1);
-            dZdT(2,j) = dXY3dty(3,1);
-            dZdT(3,j) = dXY3dtz(3,1);
-        end
+        dZdT = repmat([dXY3dtx(3,1);dXY3dty(3,1);dXY3dtz(3,1)], 1, xyzk_length);
         dZdP = [dZdT;dZdR];
-        
+
+
         dEdP = dMdP-dZdP;
         nPtsk = length(zk);
         IDk = nPts+1:nPts+nPtsk; %ID numer from 1 to nPtsk

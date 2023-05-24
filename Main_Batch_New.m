@@ -81,26 +81,26 @@ end
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
 % Convert the grid to 3D points
-[i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
-x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
-y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
-z = Map.Grid; % Use Grid values as z coordinates
-
-points = [y(:), x(:), z(:)];
-
-% Remove points with zero occupancy values to improve visualization
-points = points(z(:) > 0, :);
-
-% Create a pointCloud object
-global_points = pointCloud(points);
-
-% Visualize the point cloud
-figure; % Create a new figure
-pcshow(global_points); % Display the 3D point cloud
-xlabel('X'); % Label the x-axis
-ylabel('Y'); % Label the y-axis
-zlabel('Z'); % Label the z-axis
-title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
+% [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
+% x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
+% y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
+% z = Map.Grid; % Use Grid values as z coordinates
+% 
+% points = [y(:), x(:), z(:)];
+% 
+% % Remove points with zero occupancy values to improve visualization
+% points = points(z(:) > 0, :);
+% 
+% % Create a pointCloud object
+% global_points = pointCloud(points);
+% 
+% % Visualize the point cloud
+% figure; % Create a new figure
+% pcshow(global_points); % Display the 3D point cloud
+% xlabel('X'); % Label the x-axis
+% ylabel('Y'); % Label the y-axis
+% zlabel('Z'); % Label the z-axis
+% title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
 HH2 = FuncMapConst(Map);
 [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
 if Lambda_O==0
@@ -115,10 +115,10 @@ fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
 Iter = 0;
 Iter_minError = 10;
 index = [];
-while Iter <= 10
-%     Lambda = 0.0001;
-%     HH2 = FuncMapConst(Map); 
-%     HH = HH2*Lambda;
+while Iter <= 5
+    Lambda = 0.00001;
+    HH2 = FuncMapConst(Map); 
+    HH = HH2*Lambda;
 %     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,ErrorS,HH,Map,IS,Lambda);
 %     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O);
 %     [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JP,JD,ErrorS,HH,Map);
@@ -138,7 +138,7 @@ while Iter <= 10
     fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
     Iter = Iter+1;
 end
-% num_of_planes = 6;
+num_of_planes = 6;
 % for i = 1:num_of_planes-1
 %     pose_name = sprintf('pose%d', i);
 %     Trans_original{i} = eval(pose_name);
@@ -157,20 +157,22 @@ end
 % Iter_time = toc;
 % fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
 % Ite_num = 0;
-% while Ite_num <= 0
-%     [DeltaP_PoseOnly,Sum_Delta_PoseOnly] = FuncDelta3DPoseOnly(JP,ErrorS,IS);
-%     Pose_Vector = FuncParamPose(Pose);
-%     [Pose_Vector_new_PoseOnly] = FuncUpdate3DPoseOnly(Pose_Vector,DeltaP_PoseOnly);
-%     Pose = FuncInverParamPose(Pose_Vector_new_PoseOnly);
-%     Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
+% while Ite_num <= 6
+%     Lambda = 10.0;
+%     HH2 = FuncMapConst(Map); 
+%     HH = HH2*Lambda;
+%     [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JP,JD,ErrorS,HH,Map);
+%     Map = FuncUpdateMapOnly(Map,DeltaD);
+% %     Pose = FuncInverParamPose(Pose_Vector_new);
+% %     Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
 %     [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
 %     tic;
-%     [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
+%     [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
 %     Downsample_pointclouds,MODE_DERIVATIVES,...
 %     MODE_MAP);
 %     Iter_time = toc;
 %     fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
-%     Ite_num = Ite_num+1;
+%     Ite_num = Ite_num+1;    
 % end
 [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
 x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
