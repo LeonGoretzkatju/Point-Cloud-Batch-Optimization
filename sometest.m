@@ -1,26 +1,30 @@
 clear all;
 clc;
 close all;
-load Trans_plane.mat
-vi = [1 2 3 4 5 6];
-ui = [7 8 9 10 11 12];
-Oddi = [1 1 1 1 1 1];
-Grid = sparse(vi,ui,Oddi);
-a = 1/(1-1/(1.05)^20)*20000;
-sum_value = 0;
+A = [1 2 3 3 2 1; 4 5 6 6 5 4; 7 8 9 9 8 7];
+B = [1 1 1];
+C = B.*A
+D = sum(C)
+% load Trans_plane.mat
+% vi = [1 2 3 4 5 6];
+% ui = [7 8 9 10 11 12];
+% Oddi = [1 1 1 1 1 1];
+% Grid = sparse(vi,ui,Oddi);
+% a = 1/(1-1/(1.05)^20)*20000;
+% sum_value = 0;
 % for i = 0:11
 %     sum_value = sum_value + 1000*1/(1.01)^i;
 % end
-Income = [-1000 840 708 388 178 50];
-for i = 0:5
-    sum_value = sum_value + Income(i+1)/(1.2)^i;
-end
-p = [42 42 42 42 42 -150];
-r = roots(p);
-result = 1/0.8899-1;
-A = [1 2;3 4];
-B = [3 4;5 6];
-C = sum(A.*B)
+% Income = [-1000 840 708 388 178 50];
+% for i = 0:5
+%     sum_value = sum_value + Income(i+1)/(1.2)^i;
+% end
+% p = [42 42 42 42 42 -150];
+% r = roots(p);
+% result = 1/0.8899-1;
+% A = [1 2;3 4];
+% B = [3 4;5 6];
+% C = sum(A.*B)
 % IDk = 4:6;
 % dEdPID1 = repmat(IDk,100,1)';
 % a = [1,2,3;2,3,4]
