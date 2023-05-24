@@ -6,9 +6,7 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
     
     nD = length(Scan); % the timestamp
     nPts = 0;
-    Cnti = 1;
     cell_ErrorS = cell(1,nD);
-    cell_ErrorO = cell(1,nD);
     
     cell_JPID1 = cell(1,nD);
     cell_JPID2 = cell(1,nD);
@@ -16,19 +14,17 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
     cell_JDID1 = cell(1,nD);
     cell_JDID2 = cell(1,nD);
     cell_JDVal = cell(1,nD);
-    
-    cell_JOID1 = cell(1,nD);
-    cell_JOID2 = cell(1,nD);
-    cell_JOVal = cell(1,nD);
     for k = 1:nD
         posek = Pose{k};
         [euler_angles, ~] = se3_to_euler_angles_translation(posek);
         Scan_k = Scan{k};
         xyk = Scan_k.Location(:,1:2)'; % Extract x and y values
         zk = Scan_k.Location(:,3)'; % Extract z values as the new Oddi
-        XY1_Span = [xyk;zk];
-        P = [xyk;zk;ones(1,size(zk,2))];
-        Pwk = inv(posek)*P;
+        xyzk = [xyk;zk];
+
+        Rkw = posek(1:3,1:3);
+        tkw = posek(1:3,4);
+        Pwk = Rkw'*(xyzk-tkw);
         XY3 = (Pwk(1:2,:)-Origin)/Scale+1;    
         if strcmp(MODE_MAP,'CONTINUOUS')==1
             Md = Map.DgridG(XY3(2,:),XY3(1,:)); % interpolant of map grid 
@@ -41,20 +37,30 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
         Rroll = FuncRX(euler_angles(3));
     
         [dRyaw,dRpitch,dRroll] = DiffRotationMatrix(euler_angles);
-        dXY3dRyaw = Rroll'*Rpitch'*(dRyaw)'*XY1_Span/Scale;
-        dXY3dRpitch = Rroll'*(dRpitch)'*Ryaw'*XY1_Span/Scale;
-        dXY3dRroll = (dRroll)'*Rpitch'*Ryaw'*XY1_Span/Scale;
+        dXY3dRyaw = Rroll'*Rpitch'*(dRyaw)'*(xyzk-tkw)/Scale;
+        dXY3dRpitch = Rroll'*(dRpitch)'*Ryaw'*(xyzk-tkw)/Scale;
+        dXY3dRroll = (dRroll)'*Rpitch'*Ryaw'*(xyzk-tkw)/Scale;
+        Rkw_T = Rkw';
+        dXY3dtx = -Rkw_T(1:3,1)/Scale;
+        dXY3dty = -Rkw_T(1:3,2)/Scale;
+        dXY3dtz = -Rkw_T(1:3,3)/Scale;
+
         dMdRyaw = sum(dMdXY3.*dXY3dRyaw(1:2,:));
         dMdRpitch = sum(dMdXY3.*dXY3dRpitch(1:2,:));
         dMdRroll = sum(dMdXY3.*dXY3dRroll(1:2,:));
+                dMdR = [dMdRyaw;dMdRpitch;dMdRroll];
+
+        dMdtx = sum(dMdXY3.*dXY3dtx(1:2,:));
+        dMdty = sum(dMdXY3.*dXY3dty(1:2,:));
+        dMdtz = sum(dMdXY3.*dXY3dtz(1:2,:));
+
         dZdRyaw = dXY3dRyaw(3,:);
         dZdRpitch = dXY3dRpitch(3,:);
         dZdRroll = dXY3dRroll(3,:);
         dZdR = [dZdRyaw;dZdRpitch;dZdRroll];
         dZdT = [zeros(1,size(XY1_Span,2));...
             zeros(1,size(XY1_Span,2));ones(1,size(XY1_Span,2))]/Scale;
-        dMdR = [dMdRyaw;dMdRpitch;dMdRroll];
-        dMdT = [dMdXY3(1,:);dMdXY3(2,:);zeros(1,size(XY1_Span,2))]/Scale;
+
         dMdP = [dMdT;dMdR];
         dZdP = [dZdT;dZdR];
     %     dEdP = dZdP-dMdP;
