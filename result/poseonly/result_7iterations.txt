@@ -1,0 +1,115 @@
+when no random noise on euler angles of SE(3)
+
+Initial Error is 0.01357141 Time Use 14.891242
+
+MSE Error is 0.00784870 Time Use 27.976244
+
+MSE Error is 0.00759777 Time Use 14.406679
+
+MSE Error is 0.00740982 Time Use 11.026146
+
+MSE Error is 0.00727032 Time Use 8.150439
+
+MSE Error is 0.00714452 Time Use 12.056587
+
+MSE Error is 0.00702282 Time Use 5.591376
+
+MSE Error is 0.00697670 Time Use 7.769511
+
+when add sigma_R(0.001)*randn(1,3) to euler angles of SE(3)
+
+Initial Error is 0.01201784 Time Use 9.522983
+
+MSE Error is 0.00709615 Time Use 16.606965
+
+MSE Error is 0.00690173 Time Use 11.758783
+
+MSE Error is 0.00655795 Time Use 13.290233
+
+MSE Error is 0.00650967 Time Use 5.671600
+
+MSE Error is 0.00646774 Time Use 9.676783
+
+MSE Error is 0.00641598 Time Use 7.547850
+
+MSE Error is 0.00637990 Time Use 5.697085
+
+when add sigma_R(0.01)*randn(1,3) to euler angles of SE(3)
+
+Initial Error is 0.04707647 Time Use 6.866695
+
+MSE Error is 0.01225515 Time Use 8.244728
+
+MSE Error is 0.01163350 Time Use 7.311336
+
+MSE Error is 0.01106624 Time Use 6.066389
+
+MSE Error is 0.01086104 Time Use 6.965259
+
+MSE Error is 0.01074508 Time Use 6.177572
+
+MSE Error is 0.01066107 Time Use 7.554750
+
+MSE Error is 0.01053607 Time Use 5.935054
+
+when add sigma_R(0.1)*randn(1,3) to euler angles of SE(3)
+
+Initial Error is 0.29802699 Time Use 5.633273
+
+MSE Error is 0.27340931 Time Use 9.195391
+
+MSE Error is 0.22898944 Time Use 10.996097
+
+MSE Error is 0.28190575 Time Use 6.051240
+
+MSE Error is 0.31350976 Time Use 6.814428
+
+MSE Error is 0.30551778 Time Use 6.080541
+
+MSE Error is 0.36712599 Time Use 6.020010
+
+MSE Error is 0.29835493 Time Use 5.659233
+
+MSE Error is 0.30823979 Time Use 5.726973
+
+MSE Error is 0.32838289 Time Use 8.466799
+
+MSE Error is 0.35725357 Time Use 5.976335
+
+when add sigma_R(0.03)*randn(1,3) to euler angles of SE(3)
+
+Initial Error is 0.10546202 Time Use 5.734473
+
+MSE Error is 0.02765278 Time Use 6.233829
+
+MSE Error is 0.01195800 Time Use 7.224457
+
+MSE Error is 0.01140834 Time Use 6.101353
+
+MSE Error is 0.01161128 Time Use 7.413446
+
+MSE Error is 0.01191621 Time Use 5.697464
+
+MSE Error is 0.01219020 Time Use 5.535289
+
+MSE Error is 0.01248863 Time Use 5.561870
+
+
+
+when add sigma_R(0.005)*randn(1,3) to euler angles of SE(3)
+
+Initial Error is 0.01033942 Time Use 5.455513
+
+MSE Error is 0.00712061 Time Use 5.711442
+
+MSE Error is 0.00694638 Time Use 5.453721
+
+MSE Error is 0.00682418 Time Use 5.701989
+
+MSE Error is 0.00679300 Time Use 5.621934
+
+MSE Error is 0.00678150 Time Use 16.609049
+
+MSE Error is 0.00677419 Time Use 5.502325
+
+MSE Error is 0.00678766 Time Use 5.504049

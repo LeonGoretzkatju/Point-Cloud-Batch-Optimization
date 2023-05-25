@@ -60,7 +60,7 @@ for i = 1:num_of_planes
 end
 gridStep = 25.0;
 for i = 1:numel(pointclouds)
-%     ptCloud_down_10 = pcdownsample(pointclouds{i},'gridAverage',gridStep);
+    ptCloud_down_10 = pcdownsample(pointclouds{i},'gridAverage',gridStep);
 %     Downsample_points = FuncDownsamplePoints(ptCloud_down_10, Rate);
     Downsample_points = pointclouds{i};
 %     Downsample_points = ptCloud_down_10;
@@ -101,7 +101,7 @@ Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
 % ylabel('Y'); % Label the y-axis
 % zlabel('Z'); % Label the z-axis
 % title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
-HH2 = FuncMapConst(Map);
+% HH2 = FuncMapConst(Map);
 [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
 if Lambda_O==0
     Odom = zeros(size(Pose,1)-1,3);
@@ -121,7 +121,30 @@ index = [];
 %%有一些急剧变化的点 girdient maybe large
 %%lambda larger, 0.1 0.2 ... 
 %%same lambda, 哪些超过delta bound，画出这些点在map的位置， 如果不是分布在边缘，可能会有bug
-while Iter <= 5
+while Iter <= 6
+    Lambda = 0.00001;
+    HH2 = FuncMapConst(Map); 
+    HH = HH2*Lambda;
+%     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,ErrorS,HH,Map,IS,Lambda);
+%     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O);
+%     [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JP,JD,ErrorS,HH,Map);
+    [DeltaP_PoseOnly,Sum_Delta_PoseOnly] = FuncDelta3DPoseOnly(JP,ErrorS,IS);
+    Pose_Vector = FuncParamPose(Pose);
+%     [Map,Pose_Vector_new] = FuncUpdate3D(Map,Pose_Vector,DeltaP,DeltaD);
+%     Map = FuncUpdateMapOnly(Map,DeltaD);
+    [Pose_Vector_new_PoseOnly] = FuncUpdate3DPoseOnly(Pose_Vector,DeltaP_PoseOnly);
+    Pose = FuncInverParamPose(Pose_Vector_new_PoseOnly);
+    Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
+    [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+    tic;
+    [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
+    Downsample_pointclouds,MODE_DERIVATIVES,...
+    MODE_MAP);
+    Iter_time = toc;
+    fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+    Iter = Iter+1;
+end
+while Iter <= 6
     Lambda = 0.00001;
     HH2 = FuncMapConst(Map); 
     HH = HH2*Lambda;
