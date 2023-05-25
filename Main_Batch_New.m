@@ -115,6 +115,12 @@ fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
 Iter = 0;
 Iter_minError = 10;
 index = [];
+%%pose only, feature only
+%%no outlier rejection, record
+%%bigger smmoothing term, 十倍 二十倍 等
+%%有一些急剧变化的点 girdient maybe large
+%%lambda larger, 0.1 0.2 ... 
+%%same lambda, 哪些超过delta bound，画出这些点在map的位置， 如果不是分布在边缘，可能会有bug
 while Iter <= 5
     Lambda = 0.00001;
     HH2 = FuncMapConst(Map); 
