@@ -1,8 +1,8 @@
 function Pose_Noise_New = AddNoise(Pose)
     Pose_Noise = {};
     Pose_Length = length(Pose);
-    sigma_R = 0.01;
-    sigma_T = 0.0;
+    sigma_R = 0.0;
+    sigma_T = 0.1;
     Pose_Noise{end+1} = Pose{1};
     for i = 1:(Pose_Length-1)
         Pose2 = Pose{i+1};

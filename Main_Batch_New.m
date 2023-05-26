@@ -120,14 +120,17 @@ Iter_time = toc;
 fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
 Iter = 0;
 Iter_minError = 10;
+MaxIter = 80;
+MinError = 1e-8;
+MinDelta = 1e-10;
 index = [];
-%%pose only, feature only
-%%no outlier rejection, record
-%%bigger smmoothing term, 十倍 二十倍 等
-%%有一些急剧变化的点 girdient maybe large
-%%lambda larger, 0.1 0.2 ... 
-%%same lambda, 哪些超过delta bound，画出这些点在map的位置， 如果不是分布在边缘，可能会有bug
-while Iter <= 6
+%pose only, feature only
+%no outlier rejection, record
+%bigger smmoothing term, 十倍 二十倍 等
+%有一些急剧变化的点 girdient maybe large
+%lambda larger, 0.1 0.2 ... 
+%same lambda, 哪些超过delta bound，画出这些点在map的位置， 如果不是分布在边缘，可能会有bug
+while MSE_Error>MinError && Iter<=MaxIter
     Lambda = 0.00001;
     HH2 = FuncMapConst(Map); 
     HH = HH2*Lambda;
@@ -142,6 +145,7 @@ while Iter <= 6
     Pose_Noise = FuncInverParamPose(Pose_Vector_new_PoseOnly);
 %     Map = FuncInitialiseGridMap3D_New(Map,Pose_Noise,Downsample_pointclouds);
 %     [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+    last_MSE_Error = MSE_Error;
     tic;
     [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose_Noise,Trans,...
     Downsample_pointclouds,MODE_DERIVATIVES,...
@@ -149,6 +153,10 @@ while Iter <= 6
     Iter_time = toc;
     fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
     Iter = Iter+1;
+    if abs(MSE_Error - last_MSE_Error) <= 0.00001
+        disp("reach the global minima");
+        break;
+    end
 end
 % while Iter <= 6
 %     Lambda = 0.00001;
@@ -209,23 +217,24 @@ end
 %     fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
 %     Ite_num = Ite_num+1;    
 % end
-% [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
-% x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
-% y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
-% z = Map.Grid; % Use Grid values as z coordinates
-% 
-% points = [y(:), x(:), z(:)];
-% 
-% % Remove points with zero occupancy values to improve visualization
-% points = points(z(:) > 2.3, :);
-% 
-% % Create a pointCloud object
-% global_points = pointCloud(points);
-% 
-% % Visualize the point cloud
-% figure; % Create a new figure
-% pcshow(global_points); % Display the 3D point cloud
-% xlabel('X'); % Label the x-axis
-% ylabel('Y'); % Label the y-axis
-% zlabel('Z'); % Label the z-axis
-% title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
+Map = FuncInitialiseGridMap3D_New(Map,Pose_Noise,Downsample_pointclouds);
+[i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
+x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
+y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
+z = Map.Grid; % Use Grid values as z coordinates
+
+points = [y(:), x(:), z(:)];
+
+% Remove points with zero occupancy values to improve visualization
+points = points(z(:) > 2.3, :);
+
+% Create a pointCloud object
+global_points = pointCloud(points);
+
+% Visualize the point cloud
+figure; % Create a new figure
+pcshow(global_points); % Display the 3D point cloud
+xlabel('X'); % Label the x-axis
+ylabel('Y'); % Label the y-axis
+zlabel('Z'); % Label the z-axis
+title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
