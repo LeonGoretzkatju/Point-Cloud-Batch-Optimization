@@ -120,7 +120,7 @@ Iter_time = toc;
 fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
 Iter = 0;
 Iter_minError = 10;
-MaxIter = 80;
+MaxIter = 50;
 MinError = 1e-8;
 MinDelta = 1e-10;
 index = [];
@@ -153,7 +153,7 @@ while MSE_Error>MinError && Iter<=MaxIter
     Iter_time = toc;
     fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
     Iter = Iter+1;
-    if abs(MSE_Error - last_MSE_Error) <= 0.00001
+    if abs(MSE_Error - last_MSE_Error) <= 0.000001
         disp("reach the global minima");
         break;
     end

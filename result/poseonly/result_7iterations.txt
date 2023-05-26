@@ -1,21 +1,82 @@
 Note: the noise is simultaneously added to the yaw,pitch,roll of the pose.
-when add sigma_R(0.01)*randn(1,3) to euler angles of SE(3), no error for translation part
+------------------------------------------------
+when add sigma_R(0.1)*randn(1,3) to euler angles of SE(3), sigma_T(0.0) for translation part
 
-Initial Error is 0.09354146 Time Use 5.036214
+Initial Error is 0.08221519 Time Use 4.412320
 
-MSE Error is 0.08201775 Time Use 5.147161
+MSE Error is 0.06907001 Time Use 4.418602
 
-MSE Error is 0.07265515 Time Use 4.828640
+MSE Error is 0.06059616 Time Use 4.297381
 
-MSE Error is 0.06520980 Time Use 5.008509
+MSE Error is 0.05301596 Time Use 4.287838
 
-MSE Error is 0.05852239 Time Use 4.922188
+MSE Error is 0.04667613 Time Use 4.314685
 
-MSE Error is 0.05241451 Time Use 4.827967
+MSE Error is 0.04267455 Time Use 4.891349
 
-MSE Error is 0.04773177 Time Use 4.938126
+MSE Error is 0.03979369 Time Use 4.251550
 
-MSE Error is 0.04337292 Time Use 4.776921
+MSE Error is 0.03649175 Time Use 4.222878
+
+MSE Error is 0.03239272 Time Use 4.138503
+
+MSE Error is 0.02815326 Time Use 4.316855
+
+MSE Error is 0.02469870 Time Use 4.227767
+
+MSE Error is 0.02261546 Time Use 4.179392
+
+MSE Error is 0.02135987 Time Use 4.182112
+
+MSE Error is 0.02037865 Time Use 4.128401
+
+MSE Error is 0.01940928 Time Use 4.199117
+
+MSE Error is 0.01832102 Time Use 4.183994
+
+MSE Error is 0.01704062 Time Use 4.215098
+
+MSE Error is 0.01562069 Time Use 4.237703
+
+MSE Error is 0.01436518 Time Use 4.234859
+
+MSE Error is 0.01337851 Time Use 4.113454
+
+MSE Error is 0.01242951 Time Use 4.353378
+
+MSE Error is 0.01113758 Time Use 4.228951
+
+MSE Error is 0.00954709 Time Use 4.166366
+
+MSE Error is 0.00890073 Time Use 4.175644
+
+MSE Error is 0.00874669 Time Use 4.279530
+
+MSE Error is 0.00867717 Time Use 4.132897
+
+MSE Error is 0.00863716 Time Use 4.262282
+
+MSE Error is 0.00861237 Time Use 4.228794
+
+MSE Error is 0.00859625 Time Use 4.556831
+
+MSE Error is 0.00858556 Time Use 5.363615
+
+MSE Error is 0.00857825 Time Use 4.213631
+
+MSE Error is 0.00857315 Time Use 4.249916
+
+MSE Error is 0.00856959 Time Use 4.322160
+
+MSE Error is 0.00856708 Time Use 4.149975
+
+MSE Error is 0.00856530 Time Use 4.138665
+
+MSE Error is 0.00856406 Time Use 4.267120
+
+MSE Error is 0.00856323 Time Use 5.263392
+
+reach the global minima
 ------------------------------------------------
 when add sigma_R(0.03)*randn(1,3) to euler angles of SE(3), no error for translation part
 
@@ -271,3 +332,373 @@ MSE Error is 0.00845973 Time Use 4.187253
 MSE Error is 0.00845975 Time Use 4.191010
 
 reach the global minima
+
+------------------------------------------------
+when add sigma_R(0.0)*randn(1,3) to euler angles of SE(3), sigma_T(0.1) for translation part
+
+Initial Error is 1.73052627 Time Use 4.229205
+
+MSE Error is 1.02136551 Time Use 4.800061
+
+MSE Error is 0.57964239 Time Use 4.400461
+
+MSE Error is 0.32681298 Time Use 4.570386
+
+MSE Error is 0.19854069 Time Use 4.391157
+
+MSE Error is 0.14180844 Time Use 4.246871
+
+MSE Error is 0.11783837 Time Use 4.332813
+
+MSE Error is 0.10564668 Time Use 4.354124
+
+MSE Error is 0.09706367 Time Use 4.343466
+
+MSE Error is 0.09057683 Time Use 4.293436
+
+MSE Error is 0.08531034 Time Use 4.517779
+
+MSE Error is 0.08111512 Time Use 6.226075
+
+MSE Error is 0.07775610 Time Use 4.408111
+
+MSE Error is 0.07456047 Time Use 4.335180
+
+MSE Error is 0.07123246 Time Use 4.569645
+
+MSE Error is 0.06830454 Time Use 5.402824
+
+MSE Error is 0.06619702 Time Use 5.207761
+
+MSE Error is 0.06463340 Time Use 5.360628
+
+MSE Error is 0.06329047 Time Use 5.514020
+
+MSE Error is 0.06204506 Time Use 5.320248
+
+MSE Error is 0.06084564 Time Use 4.914758
+
+MSE Error is 0.05965664 Time Use 4.394039
+
+MSE Error is 0.05846167 Time Use 4.360435
+
+MSE Error is 0.05725203 Time Use 4.547742
+
+MSE Error is 0.05601017 Time Use 4.400999
+
+MSE Error is 0.05473678 Time Use 5.350306
+
+MSE Error is 0.05346987 Time Use 7.422076
+
+MSE Error is 0.05222257 Time Use 7.091758
+
+MSE Error is 0.05099606 Time Use 6.487098
+
+MSE Error is 0.04976548 Time Use 7.052558
+
+MSE Error is 0.04848542 Time Use 7.091322
+
+MSE Error is 0.04724268 Time Use 4.152572
+
+MSE Error is 0.04611622 Time Use 4.147599
+
+MSE Error is 0.04514769 Time Use 4.176962
+
+MSE Error is 0.04433640 Time Use 6.947499
+
+MSE Error is 0.04364490 Time Use 6.789763
+
+MSE Error is 0.04306358 Time Use 6.994351
+
+MSE Error is 0.04255302 Time Use 7.228298
+
+MSE Error is 0.04206792 Time Use 7.256155
+
+MSE Error is 0.04157848 Time Use 7.221615
+
+MSE Error is 0.04102864 Time Use 7.356440
+
+MSE Error is 0.04041768 Time Use 7.157844
+
+MSE Error is 0.03973027 Time Use 5.052196
+
+MSE Error is 0.03896154 Time Use 4.141089
+
+MSE Error is 0.03811802 Time Use 4.164957
+
+MSE Error is 0.03723199 Time Use 4.336402
+
+MSE Error is 0.03634806 Time Use 4.239737
+
+MSE Error is 0.03550560 Time Use 4.280836
+
+MSE Error is 0.03468743 Time Use 4.321246
+
+MSE Error is 0.03385492 Time Use 4.225689
+
+MSE Error is 0.03296707 Time Use 4.327559
+
+MSE Error is 0.03199210 Time Use 6.519768
+
+MSE Error is 0.03095650 Time Use 7.359263
+
+MSE Error is 0.02995079 Time Use 4.200129
+
+MSE Error is 0.02906204 Time Use 4.312703
+
+MSE Error is 0.02808455 Time Use 4.175696
+
+MSE Error is 0.02678362 Time Use 4.207843
+
+MSE Error is 0.02618665 Time Use 4.173550
+
+MSE Error is 0.02603361 Time Use 4.153760
+
+MSE Error is 0.02594665 Time Use 4.117036
+
+MSE Error is 0.02588603 Time Use 4.208939
+
+MSE Error is 0.02584028 Time Use 4.146156
+
+MSE Error is 0.02579945 Time Use 4.172005
+
+MSE Error is 0.02576220 Time Use 4.200981
+
+MSE Error is 0.02572677 Time Use 4.236798
+
+MSE Error is 0.02568765 Time Use 4.197958
+
+MSE Error is 0.02565015 Time Use 4.456150
+
+MSE Error is 0.02561168 Time Use 4.213040
+
+MSE Error is 0.02556688 Time Use 4.246016
+
+MSE Error is 0.02551511 Time Use 4.743515
+
+MSE Error is 0.02545519 Time Use 4.178209
+
+MSE Error is 0.02538883 Time Use 4.294645
+
+MSE Error is 0.02531464 Time Use 4.387134
+
+MSE Error is 0.02521798 Time Use 6.772439
+
+MSE Error is 0.02509578 Time Use 6.928972
+
+MSE Error is 0.02494353 Time Use 6.836333
+
+MSE Error is 0.02473808 Time Use 6.180107
+
+MSE Error is 0.02443341 Time Use 4.112616
+
+MSE Error is 0.02402857 Time Use 4.349386
+
+MSE Error is 0.02360824 Time Use 4.094745
+
+MSE Error is 0.02329401 Time Use 4.233559
+
+MSE Error is 0.02309139 Time Use 4.142845
+
+>> Main_Batch_New
+MSE Error is 0.02295465 Time Use 4.153660
+
+MSE Error is 0.02285188 Time Use 4.118270
+
+MSE Error is 0.02276030 Time Use 4.195875
+
+MSE Error is 0.02267042 Time Use 4.176155
+
+MSE Error is 0.02257689 Time Use 4.193161
+
+MSE Error is 0.02247961 Time Use 4.307520
+
+MSE Error is 0.02237784 Time Use 4.149263
+
+MSE Error is 0.02226764 Time Use 4.093907
+
+MSE Error is 0.02214458 Time Use 4.091599
+
+MSE Error is 0.02201667 Time Use 4.205273
+
+MSE Error is 0.02188525 Time Use 4.090981
+
+MSE Error is 0.02175143 Time Use 4.138411
+
+MSE Error is 0.02161271 Time Use 4.143983
+
+MSE Error is 0.02146611 Time Use 4.308123
+
+MSE Error is 0.02131387 Time Use 4.149371
+
+MSE Error is 0.02115833 Time Use 4.220540
+
+MSE Error is 0.02100024 Time Use 4.102337
+
+MSE Error is 0.02085084 Time Use 4.136039
+
+MSE Error is 0.02069804 Time Use 4.248978
+
+MSE Error is 0.02054997 Time Use 4.216492
+
+MSE Error is 0.02040878 Time Use 4.207508
+
+MSE Error is 0.02025959 Time Use 4.223425
+
+MSE Error is 0.02012258 Time Use 4.112702
+
+MSE Error is 0.01999128 Time Use 4.279265
+
+MSE Error is 0.01985424 Time Use 4.229063
+
+MSE Error is 0.01971801 Time Use 4.205943
+
+MSE Error is 0.01958566 Time Use 4.218537
+
+MSE Error is 0.01944524 Time Use 4.136457
+
+MSE Error is 0.01931740 Time Use 4.167212
+
+MSE Error is 0.01918912 Time Use 4.126868
+
+MSE Error is 0.01905036 Time Use 4.249987
+
+MSE Error is 0.01891174 Time Use 4.179192
+
+MSE Error is 0.01876079 Time Use 4.162536
+
+MSE Error is 0.01858869 Time Use 4.128120
+
+MSE Error is 0.01840226 Time Use 4.111801
+
+MSE Error is 0.01818804 Time Use 4.181907
+
+MSE Error is 0.01796275 Time Use 4.247146
+
+MSE Error is 0.01770839 Time Use 4.193435
+
+MSE Error is 0.01742698 Time Use 4.393793
+
+MSE Error is 0.01710642 Time Use 4.162825
+
+MSE Error is 0.01673775 Time Use 4.101191
+
+MSE Error is 0.01633911 Time Use 4.177459
+
+MSE Error is 0.01592772 Time Use 4.098243
+
+MSE Error is 0.01552266 Time Use 4.145223
+
+MSE Error is 0.01512817 Time Use 4.200369
+
+MSE Error is 0.01472713 Time Use 4.081410
+
+MSE Error is 0.01433891 Time Use 4.104547
+
+MSE Error is 0.01395931 Time Use 4.086921
+
+MSE Error is 0.01358257 Time Use 4.144937
+
+MSE Error is 0.01321099 Time Use 4.177449
+
+MSE Error is 0.01283698 Time Use 4.155361
+
+MSE Error is 0.01246431 Time Use 4.174597
+
+MSE Error is 0.01207504 Time Use 4.097512
+
+MSE Error is 0.01164735 Time Use 4.105247
+
+MSE Error is 0.01114092 Time Use 4.122132
+
+MSE Error is 0.01051054 Time Use 4.067882
+
+MSE Error is 0.00981275 Time Use 4.106253
+
+MSE Error is 0.00927934 Time Use 4.110737
+
+MSE Error is 0.00906051 Time Use 4.079019
+
+MSE Error is 0.00898911 Time Use 4.159306
+
+MSE Error is 0.00896251 Time Use 4.150905
+
+MSE Error is 0.00895269 Time Use 4.041100
+
+reach the global minima
+
+------------------------------------------------
+when add sigma_R(0.0)*randn(1,3) to euler angles of SE(3), sigma_T(0.01) for translation part of t_x
+
+Initial Error is 0.05512444 Time Use 4.277220
+
+MSE Error is 0.02421263 Time Use 4.408550
+
+MSE Error is 0.01063397 Time Use 4.237950
+
+MSE Error is 0.00883651 Time Use 4.159844
+
+MSE Error is 0.00856022 Time Use 4.273014
+
+MSE Error is 0.00849642 Time Use 4.211161
+
+MSE Error is 0.00847838 Time Use 4.291409
+
+MSE Error is 0.00847252 Time Use 4.350569
+
+MSE Error is 0.00847049 Time Use 4.288083
+
+MSE Error is 0.00846984 Time Use 4.206036
+
+reach the global minima
+
+------------------------------------------------
+when add sigma_R(0.0)*randn(1,3) to euler angles of SE(3), sigma_T(0.1) for translation part of t_x
+system diverge
+
+Initial Error is 0.71370037 Time Use 6.881548
+
+MSE Error is 0.49361751 Time Use 4.555685
+
+MSE Error is 0.36082041 Time Use 4.489134
+
+MSE Error is 0.36634708 Time Use 4.266958
+
+MSE Error is 0.39857603 Time Use 4.297351
+
+MSE Error is 0.44425553 Time Use 4.263025
+
+MSE Error is 0.50843206 Time Use 4.386220
+
+------------------------------------------------
+when add sigma_R(0.005)*randn(1,3) to euler angles of SE(3), sigma_T(0.0) for translation part
+
+Initial Error is 0.06081251 Time Use 6.523902
+
+MSE Error is 0.04901117 Time Use 7.173546
+
+MSE Error is 0.03899571 Time Use 7.035247
+
+MSE Error is 0.02990702 Time Use 6.320479
+
+MSE Error is 0.02304754 Time Use 4.487211
+
+MSE Error is 0.01799499 Time Use 4.176565
+
+MSE Error is 0.01349132 Time Use 4.413140
+
+MSE Error is 0.01061501 Time Use 5.951891
+
+MSE Error is 0.00912384 Time Use 4.249898
+
+MSE Error is 0.00856662 Time Use 4.222677
+
+MSE Error is 0.00848429 Time Use 4.774284
+
+MSE Error is 0.00846455 Time Use 4.188194
+
+MSE Error is 0.00845817 Time Use 4.894703
+
+MSE Error is 0.00845572 Time Use 4.501891
+
+MSE Error is 0.00845475 Time Use 4.214535
