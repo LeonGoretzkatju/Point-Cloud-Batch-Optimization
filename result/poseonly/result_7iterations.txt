@@ -702,3 +702,40 @@ MSE Error is 0.00845817 Time Use 4.894703
 MSE Error is 0.00845572 Time Use 4.501891
 
 MSE Error is 0.00845475 Time Use 4.214535
+
+------------------------------------------------
+when add sigma_R(0.002)*randn(1,3) to euler angles of SE(3), sigma_T(0.0) for translation part
+
+Initial Error is 0.05207966 Time Use 4.209340
+
+MSE Error is 0.03515733 Time Use 4.398673
+
+MSE Error is 0.02049493 Time Use 4.245156
+
+MSE Error is 0.01101746 Time Use 4.121298
+
+MSE Error is 0.00897866 Time Use 4.182603
+
+MSE Error is 0.00865759 Time Use 4.148967
+
+MSE Error is 0.00857961 Time Use 4.591951
+
+MSE Error is 0.00854915 Time Use 4.188604
+
+MSE Error is 0.00853253 Time Use 4.175372
+
+MSE Error is 0.00852227 Time Use 4.140605
+
+MSE Error is 0.00851553 Time Use 4.123629
+
+MSE Error is 0.00851096 Time Use 4.124121
+
+MSE Error is 0.00850784 Time Use 4.175401
+
+MSE Error is 0.00850568 Time Use 4.196086
+
+MSE Error is 0.00850420 Time Use 4.078794
+
+MSE Error is 0.00850320 Time Use 4.256317
+
+reach the global minima
