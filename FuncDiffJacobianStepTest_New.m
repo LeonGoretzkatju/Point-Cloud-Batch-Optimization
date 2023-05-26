@@ -1,4 +1,4 @@
-function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odom,Scan,MODE_DERIVATIVES,MODE_MAP)
+function [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose,Odom,Scan,MODE_DERIVATIVES,MODE_MAP)
     Size_i = Map.Size_i;
     Size_j = Map.Size_j;
     Scale = Map.Scale;
@@ -66,6 +66,7 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
 
 
         dEdP = dMdP-dZdP;
+%         dEdP = dMdP;
         nPtsk = length(zk);
         IDk = nPts+1:nPts+nPtsk; %ID numer from 1 to nPtsk
         nPts = nPts+nPtsk;
@@ -108,5 +109,5 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
     JDVal = double(JDVal);
     JDID1 = double(JDID1);
     JDID2 = double(JDID2);
-    JD = sparse(JDID1,JDID2,JDVal,nPts,Size_i*Size_j);
+%     JD = sparse(JDID1,JDID2,JDVal,nPts,Size_i*Size_j);
 end

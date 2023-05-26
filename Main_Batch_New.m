@@ -60,7 +60,7 @@ for i = 1:num_of_planes
 end
 gridStep = 25.0;
 for i = 1:numel(pointclouds)
-    ptCloud_down_10 = pcdownsample(pointclouds{i},'gridAverage',gridStep);
+%     ptCloud_down_10 = pcdownsample(pointclouds{i},'gridAverage',gridStep);
 %     Downsample_points = FuncDownsamplePoints(ptCloud_down_10, Rate);
     Downsample_points = pointclouds{i};
 %     Downsample_points = ptCloud_down_10;
@@ -80,36 +80,40 @@ end
 % pcshow(global_point_clouds);
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
-Pose = AddNoise(Pose);
+Pose_Noise = AddNoise(Pose);
+
+% [a,b,c] = find(Map.Grid);
+% figure(1);
+% plot3(a,b,c,'b.','MarkerSize',0.5);
 
 % Convert the grid to 3D points
-[i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
-x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
-y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
-z = Map.Grid; % Use Grid values as z coordinates
-
-points = [y(:), x(:), z(:)];
-
-% Remove points with zero occupancy values to improve visualization
-points = points(z(:) > 0, :);
-
-% Create a pointCloud object
-global_points = pointCloud(points);
-
-% Visualize the point cloud
-figure; % Create a new figure
-pcshow(global_points); % Display the 3D point cloud
-xlabel('X'); % Label the x-axis
-ylabel('Y'); % Label the y-axis
-zlabel('Z'); % Label the z-axis
-title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
+% [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
+% x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
+% y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
+% z = Map.Grid; % Use Grid values as z coordinates
+% 
+% points = [y(:), x(:), z(:)];
+% 
+% % Remove points with zero occupancy values to improve visualization
+% points = points(z(:) > 0, :);
+% 
+% % Create a pointCloud object
+% global_points = pointCloud(points);
+% 
+% % Visualize the point cloud
+% figure; % Create a new figure
+% pcshow(global_points); % Display the 3D point cloud
+% xlabel('X'); % Label the x-axis
+% ylabel('Y'); % Label the y-axis
+% zlabel('Z'); % Label the z-axis
+% title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
 HH2 = FuncMapConst(Map);
 [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
 if Lambda_O==0
     Odom = zeros(size(Pose,1)-1,3);
 end
 tic;
-[ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
+[ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose_Noise,Trans,...
     Downsample_pointclouds,MODE_DERIVATIVES,...
     MODE_MAP);
 Iter_time = toc;
@@ -131,45 +135,45 @@ while Iter <= 6
 %     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O);
 %     [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JP,JD,ErrorS,HH,Map);
     [DeltaP_PoseOnly,Sum_Delta_PoseOnly] = FuncDelta3DPoseOnly(JP,ErrorS,IS);
-    Pose_Vector = FuncParamPose(Pose);
+    Pose_Vector = FuncParamPose(Pose_Noise);
 %     [Map,Pose_Vector_new] = FuncUpdate3D(Map,Pose_Vector,DeltaP,DeltaD);
 %     Map = FuncUpdateMapOnly(Map,DeltaD);
     [Pose_Vector_new_PoseOnly] = FuncUpdate3DPoseOnly(Pose_Vector,DeltaP_PoseOnly);
-    Pose = FuncInverParamPose(Pose_Vector_new_PoseOnly);
-    Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
-    [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+    Pose_Noise = FuncInverParamPose(Pose_Vector_new_PoseOnly);
+%     Map = FuncInitialiseGridMap3D_New(Map,Pose_Noise,Downsample_pointclouds);
+%     [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
     tic;
-    [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
+    [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose_Noise,Trans,...
     Downsample_pointclouds,MODE_DERIVATIVES,...
     MODE_MAP);
     Iter_time = toc;
     fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
     Iter = Iter+1;
 end
-while Iter <= 6
-    Lambda = 0.00001;
-    HH2 = FuncMapConst(Map); 
-    HH = HH2*Lambda;
-%     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,ErrorS,HH,Map,IS,Lambda);
-%     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O);
-%     [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JP,JD,ErrorS,HH,Map);
-    [DeltaP_PoseOnly,Sum_Delta_PoseOnly] = FuncDelta3DPoseOnly(JP,ErrorS,IS);
-    Pose_Vector = FuncParamPose(Pose);
-%     [Map,Pose_Vector_new] = FuncUpdate3D(Map,Pose_Vector,DeltaP,DeltaD);
-%     Map = FuncUpdateMapOnly(Map,DeltaD);
-    [Pose_Vector_new_PoseOnly] = FuncUpdate3DPoseOnly(Pose_Vector,DeltaP_PoseOnly);
-    Pose = FuncInverParamPose(Pose_Vector_new_PoseOnly);
-    Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
-    [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
-    tic;
-    [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
-    Downsample_pointclouds,MODE_DERIVATIVES,...
-    MODE_MAP);
-    Iter_time = toc;
-    fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
-    Iter = Iter+1;
-end
-num_of_planes = 6;
+% while Iter <= 6
+%     Lambda = 0.00001;
+%     HH2 = FuncMapConst(Map); 
+%     HH = HH2*Lambda;
+% %     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,ErrorS,HH,Map,IS,Lambda);
+% %     [DeltaP,DeltaD,Sum_Delta] = FuncDelta3D(JP,JD,JO,ErrorS,ErrorO,HH,Map,IS,IO,Lambda,Lambda_O);
+% %     [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JP,JD,ErrorS,HH,Map);
+%     [DeltaP_PoseOnly,Sum_Delta_PoseOnly] = FuncDelta3DPoseOnly(JP,ErrorS,IS);
+%     Pose_Vector = FuncParamPose(Pose);
+% %     [Map,Pose_Vector_new] = FuncUpdate3D(Map,Pose_Vector,DeltaP,DeltaD);
+% %     Map = FuncUpdateMapOnly(Map,DeltaD);
+%     [Pose_Vector_new_PoseOnly] = FuncUpdate3DPoseOnly(Pose_Vector,DeltaP_PoseOnly);
+%     Pose = FuncInverParamPose(Pose_Vector_new_PoseOnly);
+%     Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
+%     [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+%     tic;
+%     [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Trans,...
+%     Downsample_pointclouds,MODE_DERIVATIVES,...
+%     MODE_MAP);
+%     Iter_time = toc;
+%     fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+%     Iter = Iter+1;
+% end
+% num_of_planes = 6;
 % for i = 1:num_of_planes-1
 %     pose_name = sprintf('pose%d', i);
 %     Trans_original{i} = eval(pose_name);
@@ -205,23 +209,23 @@ num_of_planes = 6;
 %     fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
 %     Ite_num = Ite_num+1;    
 % end
-[i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
-x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
-y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
-z = Map.Grid; % Use Grid values as z coordinates
-
-points = [y(:), x(:), z(:)];
-
-% Remove points with zero occupancy values to improve visualization
-points = points(z(:) > 2.3, :);
-
-% Create a pointCloud object
-global_points = pointCloud(points);
-
-% Visualize the point cloud
-figure; % Create a new figure
-pcshow(global_points); % Display the 3D point cloud
-xlabel('X'); % Label the x-axis
-ylabel('Y'); % Label the y-axis
-zlabel('Z'); % Label the z-axis
-title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
+% [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
+% x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
+% y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
+% z = Map.Grid; % Use Grid values as z coordinates
+% 
+% points = [y(:), x(:), z(:)];
+% 
+% % Remove points with zero occupancy values to improve visualization
+% points = points(z(:) > 2.3, :);
+% 
+% % Create a pointCloud object
+% global_points = pointCloud(points);
+% 
+% % Visualize the point cloud
+% figure; % Create a new figure
+% pcshow(global_points); % Display the 3D point cloud
+% xlabel('X'); % Label the x-axis
+% ylabel('Y'); % Label the y-axis
+% zlabel('Z'); % Label the z-axis
+% title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
