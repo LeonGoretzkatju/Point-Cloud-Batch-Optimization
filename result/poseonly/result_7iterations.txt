@@ -1,4 +1,4 @@
-when no random noise on euler angles of SE(3)
+when no random noise on euler angles of SE(3) pose only
 
 Initial Error is 0.01357141 Time Use 14.891242
 
