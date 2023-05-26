@@ -1,4 +1,4 @@
-function [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose,Odom,Scan,MODE_DERIVATIVES,MODE_MAP)
+function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odom,Scan,MODE_DERIVATIVES,MODE_MAP)
     Size_i = Map.Size_i;
     Size_j = Map.Size_j;
     Scale = Map.Scale;
@@ -77,8 +77,10 @@ function [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose,Odom,S
         cell_JPID2{k} = reshape(dEdPID2',[],1);
         cell_JPVal{k} = reshape(dEdP',[],1);
             
-        u = max(XY3(1,:), 1); % x of grid map
-        v = max(XY3(2,:), 1); % y of grid map
+%         u = max(XY3(1,:), 1); % x of grid map
+%         v = max(XY3(2,:), 1); % y of grid map
+        u = XY3(1,:); % x of grid map
+        v = XY3(2,:); % y of grid map
         u1 = fix(u); % Rounding to zero direction
         v1 = fix(v);
         
@@ -109,5 +111,5 @@ function [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobianStepTest_New(Map,Pose,Odom,S
     JDVal = double(JDVal);
     JDID1 = double(JDID1);
     JDID2 = double(JDID2);
-%     JD = sparse(JDID1,JDID2,JDVal,nPts,Size_i*Size_j);
+    JD = sparse(JDID1,JDID2,JDVal,nPts,Size_i*Size_j);
 end
