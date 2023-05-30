@@ -106,7 +106,7 @@ index = [];
 %有一些急剧变化的点 girdient maybe large
 %lambda larger, 0.1 0.2 ... 
 %same lambda, 哪些超过delta bound，画出这些点在map的位置， 如果不是分布在边缘，可能会有bug
-Lambda = 0.1;
+Lambda = 0.2;
 HH2 = FuncMapConst(Map); 
 HH = HH2*Lambda;
 while Iter <= 2
