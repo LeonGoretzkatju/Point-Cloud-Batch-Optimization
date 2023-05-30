@@ -74,9 +74,10 @@ end
 % global_point_clouds = FuncCreateGlobalMapPoints(Pose, Downsample_pointclouds);
 % figure;
 % pcshow(global_point_clouds);
+Noise_Level = 100.0;
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
-Map = AddNoiseToMap(Map);
+Map = AddNoiseToMap(Map,Noise_Level);
 % Pose_Noise = AddNoise(Pose);
 
 % [a,b,c] = find(Map.Grid);
@@ -106,10 +107,10 @@ index = [];
 %有一些急剧变化的点 girdient maybe large
 %lambda larger, 0.1 0.2 ... 
 %same lambda, 哪些超过delta bound，画出这些点在map的位置， 如果不是分布在边缘，可能会有bug
-Lambda = 0.2;
+Lambda = 0.5;
 HH2 = FuncMapConst(Map); 
 HH = HH2*Lambda;
-while Iter <= 2
+while Iter <= 1
     [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JP,JD,ErrorS,HH,Map);
     Map = FuncUpdateMapOnly(Map,DeltaD);
     [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
