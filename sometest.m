@@ -1,10 +1,10 @@
 clear all;
 clc;
 close all;
-A = [1 2 3 3 2 1; 4 5 6 6 5 4; 7 8 9 9 8 7];
-B = [1 1 1];
-C = B.*A
-D = sum(C)
+IDk = 1:100;
+dEdMID1 = repmat(IDk,4,1);
+cell_JDID1{1} = reshape(dEdMID1',[],1);
+vertcat(cell_JDID1{:})
 % load Trans_plane.mat
 % vi = [1 2 3 4 5 6];
 % ui = [7 8 9 10 11 12];
