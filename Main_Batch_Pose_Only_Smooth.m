@@ -5,8 +5,6 @@ load Trans_plane.mat
 addpath("plane_seq2\")
 MODE_DERIVATIVES = 'DEFAULT'; % DEFAULT or PARSING
 
-MAX_ITER = 55;
-
 FILE_DIRECTORY = 'Results/test';
 
 MODE_MAP = 'CONTINUOUS'; % CONTINUOUS or DISCRETE
@@ -80,12 +78,14 @@ Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
 Pose_Noise = AddNoise(Pose,sigma_R,sigma_T);
 
-% [a,b,c] = find(Map.Grid);
-% figure(1);
-% plot3(a,b,c,'b.','MarkerSize',0.5);
+%%Calculate the Jacobian of smoothing term w.r.t map grid
+Lambda = 0.5;
+HH2 = FuncMapConst(Map); 
+HH = HH2*Lambda;
 
-HH2 = FuncMapConst(Map);
+%%calculate the numerical derivate of map w.r.t map grid
 [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+
 if Lambda_O==0
     Odom = zeros(size(Pose,1)-1,3);
 end
