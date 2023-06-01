@@ -5,6 +5,7 @@ IDk = 1:100;
 dEdMID1 = repmat(IDk,4,1);
 cell_JDID1{1} = reshape(dEdMID1',[],1);
 vertcat(cell_JDID1{:})
+JD = sparse(10,10);
 % load Trans_plane.mat
 % vi = [1 2 3 4 5 6];
 % ui = [7 8 9 10 11 12];

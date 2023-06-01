@@ -72,14 +72,14 @@ end
 % global_point_clouds = FuncCreateGlobalMapPoints(Pose, Downsample_pointclouds);
 % figure;
 % pcshow(global_point_clouds);
-sigma_R = 0.01;
-sigma_T = 0.01;
+sigma_R = 0.05;
+sigma_T = 0.0;
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
 Pose_Noise = AddNoise(Pose,sigma_R,sigma_T);
 
 %%Calculate the Jacobian of smoothing term w.r.t map grid
-Lambda = 0.5;
+Lambda = 0.02;
 HH2 = FuncMapConst(Map); 
 HH = HH2*Lambda;
 
@@ -108,10 +108,10 @@ index = [];
 % lambda larger, 0.1 0.2 ... 
 % same lambda, 哪些超过delta bound，画出这些点在map的位置， 如果不是分布在边缘，可能会有bug
 while MSE_Error>MinError && Iter<=MaxIter
-    [DeltaP_PoseOnly,Sum_Delta_PoseOnly] = FuncDelta3DPoseOnly(JP,ErrorS,IS);
+    [Delta_Pose, Delta_Map, Sum_Delta] = FuncDelta3DPoseSmooth(JP,JD,ErrorS,HH,Map,IS,Lambda);
     Pose_Vector = FuncParamPose(Pose_Noise);
-    [Pose_Vector_new_PoseOnly] = FuncUpdate3DPoseOnly(Pose_Vector,DeltaP_PoseOnly);
-    Pose_Noise = FuncInverParamPose(Pose_Vector_new_PoseOnly);
+    [Pose_Vector_new_PoseSmooth] = FuncUpdate3DPoseOnly(Pose_Vector,Delta_Pose);
+    Pose_Noise = FuncInverParamPose(Pose_Vector_new_PoseSmooth);
     last_MSE_Error = MSE_Error;
     tic;
     [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose_Noise,Trans,...
