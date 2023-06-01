@@ -72,16 +72,14 @@ end
 % global_point_clouds = FuncCreateGlobalMapPoints(Pose, Downsample_pointclouds);
 % figure;
 % pcshow(global_point_clouds);
-sigma_R = 0.05;
+sigma_R = 0.04;
 sigma_T = 0.0;
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
 Pose_Noise = AddNoise(Pose,sigma_R,sigma_T);
 
 %%Calculate the Jacobian of smoothing term w.r.t map grid
-Lambda = 0.02;
 HH2 = FuncMapConst(Map); 
-HH = HH2*Lambda;
 
 %%calculate the numerical derivate of map w.r.t map grid
 [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
@@ -108,6 +106,14 @@ index = [];
 % lambda larger, 0.1 0.2 ... 
 % same lambda, 哪些超过delta bound，画出这些点在map的位置， 如果不是分布在边缘，可能会有bug
 while MSE_Error>MinError && Iter<=MaxIter
+    if Iter <= 27
+        Lambda = 0.2;
+    elseif Iter >= 28 && Iter <= 50
+        Lambda = 0.1;
+    else
+        Lambda = 0.05;
+    end
+    HH = HH2*Lambda;
     [Delta_Pose, Delta_Map, Sum_Delta] = FuncDelta3DPoseSmooth(JP,JD,ErrorS,HH,Map,IS,Lambda);
     Pose_Vector = FuncParamPose(Pose_Noise);
     [Pose_Vector_new_PoseSmooth] = FuncUpdate3DPoseOnly(Pose_Vector,Delta_Pose);
@@ -118,7 +124,7 @@ while MSE_Error>MinError && Iter<=MaxIter
     Downsample_pointclouds,MODE_DERIVATIVES,...
     MODE_MAP);
     Iter_time = toc;
-    fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+    fprintf('MSE Error is %.8f Time Use %f Iter %d \n', MSE_Error, Iter_time, Iter);
     Iter = Iter+1;
 %     if abs(MSE_Error - last_MSE_Error) <= 0.00001
 %         disp("reach the global minima");
