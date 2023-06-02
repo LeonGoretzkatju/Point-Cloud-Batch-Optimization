@@ -72,14 +72,18 @@ end
 % global_point_clouds = FuncCreateGlobalMapPoints(Pose, Downsample_pointclouds);
 % figure;
 % pcshow(global_point_clouds);
-sigma_R = 0.04;
+sigma_R = 0.05;
 sigma_T = 0.0;
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
 Pose_Noise = AddNoise(Pose,sigma_R,sigma_T);
 
 %%Calculate the Jacobian of smoothing term w.r.t map grid
-HH2 = FuncMapConst(Map); 
+% HH2 = FuncMapConst(Map);
+
+%%Calculate the Jacobian of smoothing term w.r.t map grid, JS, ID1 = point
+%%number ID2 = point ID
+JS = FuncMapSmoothJacobian(Map);
 
 %%calculate the numerical derivate of map w.r.t map grid
 [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
@@ -95,7 +99,7 @@ Iter_time = toc;
 fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
 Iter = 0;
 Iter_minError = 10;
-MaxIter = 55;
+MaxIter = 80;
 MinError = 1e-8;
 MinDelta = 1e-10;
 index = [];
@@ -106,15 +110,16 @@ index = [];
 % lambda larger, 0.1 0.2 ... 
 % same lambda, 哪些超过delta bound，画出这些点在map的位置， 如果不是分布在边缘，可能会有bug
 while MSE_Error>MinError && Iter<=MaxIter
-    if Iter <= 27
-        Lambda = 0.2;
-    elseif Iter >= 28 && Iter <= 50
-        Lambda = 0.1;
-    else
-        Lambda = 0.05;
-    end
-    HH = HH2*Lambda;
-    [Delta_Pose, Delta_Map, Sum_Delta] = FuncDelta3DPoseSmooth(JP,JD,ErrorS,HH,Map,IS,Lambda);
+%     if Iter <= 25
+%         Lambda = 0.01;
+%     elseif Iter >= 28 && Iter <= 50
+%         Lambda = 0.001;
+%     else
+%         Lambda = 0.0001;
+%     end
+    Lambda = 0.2;
+%     HH = HH2*Lambda;
+    [Delta_Pose, Delta_Map, Sum_Delta] = FuncDelta3DPoseSmooth(JP,JS,ErrorS,Map,IS,Lambda);
     Pose_Vector = FuncParamPose(Pose_Noise);
     [Pose_Vector_new_PoseSmooth] = FuncUpdate3DPoseOnly(Pose_Vector,Delta_Pose);
     Pose_Noise = FuncInverParamPose(Pose_Vector_new_PoseSmooth);
