@@ -25,7 +25,7 @@ function [DeltaP,DeltaD,Sum_Delta] = FuncDelta3DPoseSmooth(JP,JS,JD,ErrorS,Map,I
 %     DeltaP = U\EP;
       
     EE = [EP;ED+EH];
-    Delta = II\EE;
+    Delta = II\EE;    
     
     nP = size(JP,2);
     DeltaP = Delta(1:nP);
@@ -33,5 +33,5 @@ function [DeltaP,DeltaD,Sum_Delta] = FuncDelta3DPoseSmooth(JP,JS,JD,ErrorS,Map,I
     
     clearvars II EE
     
-    Sum_Delta = Delta'*Delta;
+    Sum_Delta = DeltaP'*DeltaP;
 end

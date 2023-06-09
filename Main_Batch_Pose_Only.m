@@ -52,6 +52,16 @@ Trans = Trans_Preprocess(Trans_original);
 if strcmp(MODE_POSE,'TRUE')==1
     Pose = FuncPosefromTrans(Trans,num_of_planes);
 end
+
+%add function to parameterize the SE(3) to euler angle and 
+Pose_Euler_t = zeros(length(Pose),6);
+for j = 1:length(Pose)
+    posej = Pose{j};
+    [Theta_j, Translation_j] = se3_to_euler_angles_translation(posej);
+    Pose_Euler_t(j,1:3) = Translation_j';
+    Pose_Euler_t(j,4:6) = Theta_j;
+end
+
 pointclouds = {};
 Downsample_pointclouds = {};
 for i = 1:num_of_planes
@@ -74,11 +84,31 @@ end
 % global_point_clouds = FuncCreateGlobalMapPoints(Pose, Downsample_pointclouds);
 % figure;
 % pcshow(global_point_clouds);
-sigma_R = 0.01;
-sigma_T = 0.01;
+sigma_R = 0.0;
+sigma_T = 0.0;
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
-Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
-Pose_Noise = AddNoise(Pose,sigma_R,sigma_T);
+Map = FuncInitialiseGridMap3D_New_Vector(Map,Pose_Euler_t,Downsample_pointclouds);
+[i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
+x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
+y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
+z = Map.Grid; % Use Grid values as z coordinates
+
+points = [y(:), x(:), z(:)];
+
+% Remove points with zero occupancy values to improve visualization
+points = points(z(:) > 2.3, :);
+
+% Create a pointCloud object
+global_points = pointCloud(points);
+
+% Visualize the point cloud
+figure; % Create a new figure
+pcshow(global_points); % Display the 3D point cloud
+xlabel('X'); % Label the x-axis
+ylabel('Y'); % Label the y-axis
+zlabel('Z'); % Label the z-axis
+title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
+% Pose_Noise = AddNoise(Pose,sigma_R,sigma_T);
 
 % [a,b,c] = find(Map.Grid);
 % figure(1);

@@ -30,6 +30,7 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
             Md = Map.DgridG(XY3(2,:),XY3(1,:)); % interpolant of map grid 
         end
         Ek = Md - zk;
+%         Ek = zk - Md;
         cell_ErrorS{k} = Ek';
         dMdXY3 = [Map.DgridGu(XY3(2,:),XY3(1,:));Map.DgridGv(XY3(2,:),XY3(1,:))];
         Ryaw = FuncRZ(euler_angles(1));
@@ -37,9 +38,12 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
         Rroll = FuncRX(euler_angles(3));
     
         [dRyaw,dRpitch,dRroll] = DiffRotationMatrix(euler_angles);
-        dXY3dRyaw = Rroll'*Rpitch'*(dRyaw)'*(xyzk-tkw)/Scale;
-        dXY3dRpitch = Rroll'*(dRpitch)'*Ryaw'*(xyzk-tkw)/Scale;
-        dXY3dRroll = (dRroll)'*Rpitch'*Ryaw'*(xyzk-tkw)/Scale;
+%         dXY3dRyaw = Rroll'*Rpitch'*(dRyaw)'*(xyzk-tkw)/Scale;
+%         dXY3dRpitch = Rroll'*(dRpitch)'*Ryaw'*(xyzk-tkw)/Scale;
+%         dXY3dRroll = (dRroll)'*Rpitch'*Ryaw'*(xyzk-tkw)/Scale;
+        dXY3dRyaw = (dRyaw*Rpitch*Rroll)'*(xyzk-tkw)/Scale;
+        dXY3dRpitch = (Ryaw*dRpitch*Rroll)'*(xyzk-tkw)/Scale;
+        dXY3dRroll = (Ryaw*Rpitch*dRroll)'*(xyzk-tkw)/Scale;
         Rkw_T = Rkw';
         dXY3dtx = -Rkw_T(1:3,1)/Scale;
         dXY3dty = -Rkw_T(1:3,2)/Scale;
@@ -66,6 +70,7 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
 
 
         dEdP = dMdP-dZdP;
+%         dEdP = dZdP - dMdP;
 %         dEdP = dMdP;
         nPtsk = length(zk);
         IDk = nPts+1:nPts+nPtsk; %ID numer from 1 to nPtsk
