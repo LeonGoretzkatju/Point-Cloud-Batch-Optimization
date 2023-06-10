@@ -120,9 +120,10 @@ if Lambda_O==0
     Odom = zeros(size(Pose,1)-1,3);
 end
 tic;
-[ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose_Noise,Trans,...
-    Downsample_pointclouds,MODE_DERIVATIVES,...
-    MODE_MAP);
+
+[ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New_Vector(Map,Pose_Euler_t,...
+    Downsample_pointclouds,MODE_MAP);
+
 Iter_time = toc;
 fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
 Iter = 0;
@@ -139,14 +140,11 @@ index = [];
 % same lambda, 哪些超过delta bound，画出这些点在map的位置， 如果不是分布在边缘，可能会有bug
 while MSE_Error>MinError && Iter<=MaxIter
     [DeltaP_PoseOnly,Sum_Delta_PoseOnly] = FuncDelta3DPoseOnly(JP,ErrorS,IS);
-    Pose_Vector = FuncParamPose(Pose_Noise);
-    [Pose_Vector_new_PoseOnly] = FuncUpdate3DPoseOnly(Pose_Vector,DeltaP_PoseOnly);
-    Pose_Noise = FuncInverParamPose(Pose_Vector_new_PoseOnly);
+    [Pose_Euler_t] = FuncUpdate3DPoseOnly(Pose_Euler_t,DeltaP_PoseOnly);
     last_MSE_Error = MSE_Error;
     tic;
-    [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose_Noise,Trans,...
-    Downsample_pointclouds,MODE_DERIVATIVES,...
-    MODE_MAP);
+    [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New_Vector(Map,Pose_Euler_t,...
+    Downsample_pointclouds,MODE_MAP);
     Iter_time = toc;
     fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
     Iter = Iter+1;
@@ -156,7 +154,7 @@ while MSE_Error>MinError && Iter<=MaxIter
 %     end
 end
 
-Map = FuncInitialiseGridMap3D_New(Map,Pose_Noise,Downsample_pointclouds);
+Map = FuncInitialiseGridMap3D_New_Vector(Map,Pose_Euler_t,Downsample_pointclouds);
 [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
 x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
 y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
