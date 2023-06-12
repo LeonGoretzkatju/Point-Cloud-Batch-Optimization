@@ -124,4 +124,5 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
     JDID1 = double(JDID1);
     JDID2 = double(JDID2);
     JD = sparse(JDID1,JDID2,JDVal,nPts,Size_i*Size_j);
+    JD
 end

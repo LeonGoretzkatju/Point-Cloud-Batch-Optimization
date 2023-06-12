@@ -77,14 +77,14 @@ end
 Noise_Level = 100.0;
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 Map = FuncInitialiseGridMap3D_New(Map,Pose,Downsample_pointclouds);
-Map = AddNoiseToMap(Map,Noise_Level);
+% Map = AddNoiseToMap(Map,Noise_Level);
 % Pose_Noise = AddNoise(Pose);
 
 % [a,b,c] = find(Map.Grid);
 % figure(1);
 % plot3(a,b,c,'b.','MarkerSize',0.5);
 
-HH2 = FuncMapConst(Map);
+% HH2 = FuncMapConst(Map);
 [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
 if Lambda_O==0
     Odom = zeros(size(Pose,1)-1,3);
@@ -107,10 +107,10 @@ index = [];
 %有一些急剧变化的点 girdient maybe large
 %lambda larger, 0.1 0.2 ... 
 %same lambda, 哪些超过delta bound，画出这些点在map的位置， 如果不是分布在边缘，可能会有bug
-Lambda = 0.5;
+Lambda = 0;
 HH2 = FuncMapConst(Map); 
 HH = HH2*Lambda;
-while Iter <= 1
+while Iter <= 2
     [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JP,JD,ErrorS,HH,Map);
     Map = FuncUpdateMapOnly(Map,DeltaD);
     [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
@@ -127,26 +127,27 @@ while Iter <= 1
 %         break;
 %     end
 end
-% [a,b,c] = find(Map.Grid);
-% figure(1);
-% plot3(a,b,c,'b.','MarkerSize',0.5);
-[i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
-x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
-y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
-z = Map.Grid; % Use Grid values as z coordinates
+[a,b,c] = find(Map.Grid);
+figure(1);
+plot3(a,b,c,'b.','MarkerSize',0.5);
+% [i, j] = ndgrid(1:Size_i, 1:Size_j); % Generate grid indices
+% x = (i - 1) * Scale + Origin(1); % Convert i indices to x coordinates
+% y = (j - 1) * Scale + Origin(2); % Convert j indices to y coordinates
+% z = Map.Grid; % Use Grid values as z coordinates
+% 
+% points = [y(:), x(:), z(:)];
+% 
+% % Remove points with zero occupancy values to improve visualization
+% % points = points(z(:), :);
+% 
+% % Create a pointCloud object
+% global_points = pointCloud(points);
+% 
+% % Visualize the point cloud
+% figure; % Create a new figure
+% pcshow(global_points); % Display the 3D point cloud
+% xlabel('X'); % Label the x-axis
+% ylabel('Y'); % Label the y-axis
+% zlabel('Z'); % Label the z-axis
+% title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure
 
-points = [y(:), x(:), z(:)];
-
-% Remove points with zero occupancy values to improve visualization
-points = points(z(:) > 2.3, :);
-
-% Create a pointCloud object
-global_points = pointCloud(points);
-
-% Visualize the point cloud
-figure; % Create a new figure
-pcshow(global_points); % Display the 3D point cloud
-xlabel('X'); % Label the x-axis
-ylabel('Y'); % Label the y-axis
-zlabel('Z'); % Label the z-axis
-title('Grid Visualization as 3D Point Cloud'); % Set the title for the figure

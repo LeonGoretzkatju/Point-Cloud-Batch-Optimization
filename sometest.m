@@ -1,11 +1,11 @@
 clear all;
 clc;
 close all;
-IDk = 1:100;
-dEdMID1 = repmat(IDk,4,1);
-cell_JDID1{1} = reshape(dEdMID1',[],1);
-vertcat(cell_JDID1{:})
-JD = sparse(10,10);
+% IDk = 1:100;
+% dEdMID1 = repmat(IDk,4,1);
+% cell_JDID1{1} = reshape(dEdMID1',[],1);
+% vertcat(cell_JDID1{:})
+% JD = sparse(10,10);
 % load Trans_plane.mat
 % vi = [1 2 3 4 5 6];
 % ui = [7 8 9 10 11 12];
@@ -63,3 +63,14 @@ JD = sparse(10,10);
 % R_tt = R1*Euler_R_Delta;
 % R2;
 % Theory_DeltaR = euler2 - euler1
+Size_i = 490;
+Size_j = 300;
+vi = 1:100;
+ui = 101:200;
+Oddi = 5:104;
+UpdateOi = sparse(vi,ui,Oddi,Size_i,Size_j);
+Map.Grid = zeros(15,13);
+Grid = Map.Grid;
+Grid(1,3) = 1;
+Grid(2,4) = 2;
+XH0 = reshape(Grid',[],1);
