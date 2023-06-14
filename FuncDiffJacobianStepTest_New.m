@@ -90,15 +90,19 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
         v1 = fix(v);
         
         %limit the range of u1 at [1,Size_j-1]
-        u1(u1<1) = 1;
-        u1(u1>Size_j-1) = Size_j-1;
+%         u1(u1<1) = 1;
+%         u1(u1>Size_j-1) = Size_j-1;
         %limit the range of v1 at [1,Size_i-1]
-        v1(v1<1) = 1;
-        v1(v1>Size_i-1) = Size_i-1;
+%         v1(v1<1) = 1;
+%         v1(v1>Size_i-1) = Size_i-1;
         
         dEdM = [(v1+1-v).*(u1+1-u);(v-v1).*(u1+1-u);(v1+1-v).*(u-u1);(v-v1).*(u-u1)];
         dEdMID2 = [Size_j*(v1-1)+u1;Size_j*v1+u1;Size_j*(v1-1)+u1+1;Size_j*v1+u1+1];
         dEdMID1 = repmat(IDk,4,1);
+
+%         dEdM = [(v1+1-v).*(u1+1-u);(v1+1-v).*(u-u1);(u1+1-u).*(v-v1);(v-v1).*(u-u1)];
+%         dEdMID2 = [Size_j*(v1-1)+u1;Size_j*(v1-1)+u1+1;Size_j*(v1)+u1;Size_j*v1+u1+1];
+%         dEdMID1 = repmat(IDk,4,1);
     
         cell_JDID1{k} = reshape(dEdMID1',[],1);
         cell_JDID2{k} = reshape(dEdMID2',[],1);
@@ -124,5 +128,4 @@ function [ErrorS,MSE_Error,JP,IS,JD] = FuncDiffJacobianStepTest_New(Map,Pose,Odo
     JDID1 = double(JDID1);
     JDID2 = double(JDID2);
     JD = sparse(JDID1,JDID2,JDVal,nPts,Size_i*Size_j);
-    JD
 end
