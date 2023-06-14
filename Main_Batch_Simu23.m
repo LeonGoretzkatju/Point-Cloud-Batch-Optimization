@@ -37,6 +37,9 @@ load depth_Simu23.mat
 load Pose_GT_Simu23.mat
 load cal_Simu.mat
 
+MODE_DERIVATIVES = 'DEFAULT'; % DEFAULT or PARSING
+MODE_MAP = 'CONTINUOUS'; % CONTINUOUS or DISCRETE
+
 Pose = Pose_GT;
 
 % nD = length(D);
@@ -83,3 +86,27 @@ Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 figure(1);
 plot3(a,b,c,'b.','MarkerSize',0.5);
 
+[Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+tic;
+[ErrorS,MSE_Error,JD] = FuncDiffJacobian_MapOnly_Simu23(Map,Pose,D,K,MODE_MAP);
+Iter_time = toc;
+fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+
+Lambda = 0.1;
+HH2 = FuncMapConst(Map); 
+HH = HH2*Lambda;
+Iter = 0;
+while Iter <= 1
+    [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JD,ErrorS,HH,Map);
+    Map = FuncUpdateMapOnly(Map,DeltaD);
+    [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+    tic;
+    [ErrorS,MSE_Error,JD] = FuncDiffJacobian_MapOnly_Simu23(Map,Pose,D,K,MODE_MAP);
+    Iter_time = toc;
+    fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+    Iter = Iter+1;
+end
+
+[a,b,c] = find(Map.Grid);
+figure(1);
+plot3(a,b,c,'b.','MarkerSize',0.5);
