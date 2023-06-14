@@ -48,6 +48,19 @@ end
 
 %then we start the pose only bundle adjustment
 tic;
-[ErrorS,MSE_Error,JP] = FuncDiffJacobian_PoseOnly_Simu23(Map,Pose,D,K,MODE_MAP);
+[ErrorS,MSE_Error,JP,IS] = FuncDiffJacobian_PoseOnly_Simu23(Map,Pose,D,K,MODE_MAP);
 Iter_time = toc;
 fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+Iter = 0;
+MaxIter = 5;
+while Iter<=MaxIter
+    [DeltaP_PoseOnly,Sum_Delta_PoseOnly] = FuncDelta3DPoseOnly(JP,ErrorS,IS);
+    [Pose] = FuncUpdate3DPoseOnly(Pose,DeltaP_PoseOnly);
+    tic;
+    [ErrorS,MSE_Error,JP,IS] = FuncDiffJacobian_PoseOnly_Simu23(Map,Pose,D,K,MODE_MAP);
+    Iter_time = toc;
+    fprintf('MSE Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
+    Iter = Iter+1;
+end
+
+
