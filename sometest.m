@@ -1,6 +1,15 @@
 clear all;
 clc;
 close all;
+
+q1 = [0.999998 ,0.00108385, -0.00139558, -5.38901e-05];
+q1=quatnormalize(q1); %单位化  
+R1=quat2dcm(q1);%q1的第一位是实部
+
+for i = 1:5:10
+    i
+end
+
 % IDk = 1:100;
 % dEdMID1 = repmat(IDk,4,1);
 % cell_JDID1{1} = reshape(dEdMID1',[],1);
@@ -63,14 +72,14 @@ close all;
 % R_tt = R1*Euler_R_Delta;
 % R2;
 % Theory_DeltaR = euler2 - euler1
-Size_i = 490;
-Size_j = 300;
-vi = 1:100;
-ui = 101:200;
-Oddi = 5:104;
-UpdateOi = sparse(vi,ui,Oddi,Size_i,Size_j);
-Map.Grid = zeros(15,13);
-Grid = Map.Grid;
-Grid(1,3) = 1;
-Grid(2,4) = 2;
-XH0 = reshape(Grid',[],1);
+% Size_i = 490;
+% Size_j = 300;
+% vi = 1:100;
+% ui = 101:200;
+% Oddi = 5:104;
+% UpdateOi = sparse(vi,ui,Oddi,Size_i,Size_j);
+% Map.Grid = zeros(15,13);
+% Grid = Map.Grid;
+% Grid(1,3) = 1;
+% Grid(2,4) = 2;
+% XH0 = reshape(Grid',[],1);

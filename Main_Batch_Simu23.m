@@ -63,7 +63,7 @@ Pose = Pose_GT;
 %     Local_Scan(:, 1:(nv * nu)) = X;
 %     Local_Scan_Set{end+1} = Local_Scan;
 % end
-
+% 
 % Pwi_T_xyz = X_all';
 % pointCloud_wi = pointCloud(Pwi_T_xyz);
 % figure;
@@ -79,27 +79,31 @@ Size_j = 600;
 Scale = 0.01;
 Origin = [-3;-3];
 
+Noise_Level = 100000.0;
+
 Map = FuncCreateGridMap(round(Size_i),round(Size_j),Scale,Origin);
 [Map,ID] = FuncInitialiseGridMap_Simu23(Map,Pose,D,K);
+Map = AddNoiseToMap(Map, Noise_Level);
 
 [a,b,c] = find(Map.Grid);
 figure(1);
 plot3(a,b,c,'b.','MarkerSize',0.5);
+title("Before Optimization");
 
-[Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+[Map] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
 tic;
 [ErrorS,MSE_Error,JD] = FuncDiffJacobian_MapOnly_Simu23(Map,Pose,D,K,MODE_MAP);
 Iter_time = toc;
 fprintf('Initial Error is %.8f Time Use %f\n\n', MSE_Error, Iter_time);
 
-Lambda = 0.1;
+Lambda = 1.0;
 HH2 = FuncMapConst(Map); 
 HH = HH2*Lambda;
 Iter = 0;
 while Iter <= 1
     [DeltaD,Sum_Delta] = FuncDeltaFeatureOnly(JD,ErrorS,HH,Map);
     Map = FuncUpdateMapOnly(Map,DeltaD);
-    [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
+    [Map] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP);
     tic;
     [ErrorS,MSE_Error,JD] = FuncDiffJacobian_MapOnly_Simu23(Map,Pose,D,K,MODE_MAP);
     Iter_time = toc;
@@ -108,5 +112,6 @@ while Iter <= 1
 end
 
 [a,b,c] = find(Map.Grid);
-figure(1);
+figure(2);
 plot3(a,b,c,'b.','MarkerSize',0.5);
+title("After Optimization");

@@ -1,17 +1,8 @@
-function [Map,Gdugrid,Gdvgrid] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP)
+function [Map] = FuncMapGrid(Map,MODE_DERIVATIVES,MODE_MAP)
 
     
 DTgrid = griddedInterpolant(Map.Grid); % Interpolant
 Map.DgridG = DTgrid;
-
-
-if strcmp(MODE_MAP,'CONTINUOUS')==1
-    NTgrid = griddedInterpolant(Map.N); % Interpolant
-else
-    NTgrid = Map.N; % Interpolant
-end
-
-Map.NgridG = NTgrid;
 
 if strcmp(MODE_DERIVATIVES,'DEFAULT')==1
     

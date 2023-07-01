@@ -20,12 +20,15 @@ function [Map,ID] = FuncInitialiseGridMap_Simu23(Map,Pose,D,K)
         X = Ri' * KI * x' + Ti;
 
         ID = round((X(1:2, :) - Origin) / Scale) + 1;
+        ID = ID(:, ID(1, :) >= 1 & ID(1, :) <= size(Grid, 2) & ID(2, :) >= 1 & ID(2, :) <= size(Grid, 1));
+        %find the X(3,:) that correspond to the valid ID
+        X = X(:, ID(1, :) >= 1 & ID(1, :) <= size(Grid, 2) & ID(2, :) >= 1 & ID(2, :) <= size(Grid, 1));
         GridIndices = sub2ind(size(Grid), ID(2, :), ID(1, :));
         Grid(GridIndices) = X(3,:);
         
-        X_all(:, ((i - 1) * nv * nu + 1):(i * nv * nu)) = X;
-        Local_Scan(:, 1:(nv * nu)) = X;
-        Local_Scan_Set{i} = Local_Scan;
+        % X_all(:, ((i - 1) * nv * nu + 1):(i * nv * nu)) = X;
+        % Local_Scan(:, 1:(nv * nu)) = X;
+        % Local_Scan_Set{i} = Local_Scan;
     end
     Map.Grid = Grid;
 end

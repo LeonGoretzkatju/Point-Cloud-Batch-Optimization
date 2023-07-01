@@ -1,6 +1,6 @@
 function [Map,Pose] = FuncUpdate(Map,Pose,DeltaP,DeltaD)
 
-DeltaP2 = reshape(DeltaP,3,[])';
+DeltaP2 = reshape(DeltaP,6,[])';
 Pose(2:end,:) = Pose(2:end,:)+DeltaP2;
 
 Size_i = Map.Size_i;
